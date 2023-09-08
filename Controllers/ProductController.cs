@@ -61,4 +61,12 @@ public class ProductController : Controller {
             return Conflict();
         }
     }
+
+    [HttpPost]
+    public async Task<ActionResult<int>> CreateProduct(Product newProduct) {
+        _db.Products.Attach(newProduct);
+        await _db.SaveChangesAsync();
+
+        return newProduct.ProductId;
+    }
 }

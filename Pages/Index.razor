@@ -7,6 +7,13 @@
 <PageTitle>Blazor POS</PageTitle>
 
 <div class="main">
+    <div class="add-product">
+        <button type="button" class="btn btn-primary"
+            @onclick="@(async () => await AddNewProduct())">
+            New Product
+        </button>
+    </div>
+
     <ul class="product-cards">
         @if (products != null) {
             @foreach (var product in products) {
@@ -20,7 +27,7 @@
                             <strong>@product.Description</strong>
                         </div> 
                         <div class="price">
-                            <p>$@product.Price</p>
+                            <p>$@product.Price.ToString("0.00")</p>
                         </div>
                     </div> 
                     <div class="select-button">
@@ -30,13 +37,7 @@
                     </div>
                 </li>     
             }
-        }
-
-    <div class="row">
-        <div class="col-md-12">
-
-        </div>
-    </div>    
+        }  
     </ul>
 </div>
 
@@ -51,5 +52,9 @@
 
     async Task OpenProductDetails(int productId) {
         NavigationManager.NavigateTo($"/products/{productId}");
+    }
+
+    async Task AddNewProduct() {
+        NavigationManager.NavigateTo($"/products/new"); 
     }
 }

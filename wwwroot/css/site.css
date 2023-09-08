@@ -67,6 +67,13 @@ a, .btn-link {
         content: "An error has occurred."
     }
 
+.add-product {
+    display: block;
+    width: 100%;
+    padding: 1rem;
+    text-align: end;
+}
+
 .product-cards {
     display: grid;
     grid-template-columns: repeat(auto-fill, 20rem);

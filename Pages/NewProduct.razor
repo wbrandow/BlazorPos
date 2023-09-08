@@ -1,0 +1,45 @@
+@page "/products/new"
+@inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
+@implements IDisposable
+
+<EditForm EditContext=editContext OnValidSubmit=CreateProduct>
+    <ProductEditor Product=product />
+
+    <button class="checkout-button btn btn-warning" type="Submit" disabled=@isError>
+        Create Product
+    </button>
+    <DataAnnotationsValidator />
+</EditForm>
+
+@code {
+    Product product = new Product();
+
+    private EditContext editContext;
+    bool isError = false;
+
+    protected override void OnInitialized() {
+        editContext = new(product);
+        editContext.OnFieldChanged += HandleFieldChanged;
+    }
+
+    private void HandleFieldChanged(object sender, FieldChangedEventArgs e) {
+        isError = !editContext.Validate();
+        StateHasChanged();
+    }
+
+    public void Dispose() {
+        editContext.OnFieldChanged -= HandleFieldChanged;
+    }
+
+    async Task CreateProduct() {
+        try {
+            var response = await HttpClient.PostAsJsonAsync(NavigationManager.BaseUri + "product", product);
+            var newProductId = await response.Content.ReadFromJsonAsync<int>();
+            NavigationManager.NavigateTo("/"); 
+        }
+        catch (Exception ex) {
+            Console.Error.WriteLine(ex);
+        }
+    }
+}
