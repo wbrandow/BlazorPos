@@ -69,4 +69,25 @@ public class ProductController : Controller {
 
         return newProduct.ProductId;
     }
+
+    [HttpDelete("{ProductId}")]
+    public async Task<ActionResult<bool>> DeleteProduct(int ProductId) {
+        var product = await _db.Products
+        .Where(p => p.ProductId == ProductId)
+        .SingleOrDefaultAsync();
+
+        if (product == null) {
+            return NotFound();
+        }
+
+        try {
+            _db.Products.Remove(product);
+            await _db.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception ex) {
+            Console.Error.WriteLine(ex);
+            return false;
+        }
+    }
 }

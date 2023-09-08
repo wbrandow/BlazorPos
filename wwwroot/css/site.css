@@ -96,3 +96,15 @@ a, .btn-link {
         bottom: 0.5rem;
         right: 1rem;
     }
+      
+.edit-product-buttons {
+    margin: 0.5rem;
+}
+    
+    .update-button {
+        margin-right: .25rem;
+    }
+
+    .delete-button {
+        margin-left: 0.25rem;
+    }

@@ -18,9 +18,14 @@
         <EditForm EditContext=editContext OnValidSubmit=UpdateProduct>
             <ProductEditor Product=product />
 
-            <button class="checkout-button btn btn-warning" type="Submit" disabled=@isError>
-            Update
-            </button>
+            <div class="edit-product-buttons">
+                <button class="update-button btn btn-primary" type="Submit" disabled=@isError>
+                    Update
+                </button>
+                <button type="button" class="delete-button btn btn-danger" @onclick="@(async () => await DeleteProduct())">
+                    Delete
+                </button>
+            </div>
             <DataAnnotationsValidator />
         </EditForm>
     }
@@ -71,5 +76,16 @@
         }
     }
 
+    async Task DeleteProduct() {
+        try {
+            var response = await HttpClient.DeleteAsync(
+                $"{NavigationManager.BaseUri}product/{ProductId}");
+
+            NavigationManager.NavigateTo("/");
+        }
+        catch (Exception ex) {
+            Console.Error.WriteLine(ex);
+        }
+    }
 
 }
