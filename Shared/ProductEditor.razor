@@ -1,0 +1,84 @@
+    <div class="form-field">
+        <label>UPC:</label>
+        <div>
+            <InputText @bind-Value="Product.UPC" />
+            <ValidationMessage For="@(() => Product.UPC)" />
+        </div>
+    </div>
+
+    <div class="form-field">
+        <label>EAN:</label>
+        <div>
+            <InputText @bind-Value="Product.EAN" />
+            <ValidationMessage For="@(() => Product.EAN)" />
+        </div>
+    </div>
+
+    <div class="form-field">
+        <label>SKU:</label>
+        <div>
+            <InputText @bind-Value="Product.SKU" />
+            <ValidationMessage For="@(() => Product.SKU)" />
+        </div>
+    </div>
+
+    <div class="form-field">
+        <label>Desciption:</label>
+        <div>
+            <InputText @bind-Value="Product.Description" />
+            <ValidationMessage For="@(() => Product.Description)" />
+        </div>
+    </div>
+
+    <div class="form-field">
+        <label>Brand:</label>
+        <div>
+            <InputText @bind-Value="Product.Brand" />
+            <ValidationMessage For="@(() => Product.Brand)" />
+        </div>
+    </div>
+
+    <div class="form-field">
+        <label>Vendor:</label>
+        <div>
+            <InputText @bind-Value="Product.Vendor" />
+            <ValidationMessage For="@(() => Product.Vendor)" />
+        </div>
+    </div>
+
+    <div class="form-field">
+        <label>Price:</label>
+        <div>
+            <InputNumber @bind-Value="Product.Price" />
+            <ValidationMessage For="@(() => Product.Price)" />
+        </div>
+    </div>
+
+    <div class="form-field">
+        <label>MSRP:</label>
+        <div>
+            <InputNumber @bind-Value="Product.MSRP" />
+            <ValidationMessage For="@(() => Product.MSRP)" />
+        </div>
+    </div>
+
+    <div class="form-field">
+        <label>Online Price:</label>
+        <div>
+            <InputNumber @bind-Value="Product.OnlinePrice" />
+            <ValidationMessage For="@(() => Product.OnlinePrice)" />
+        </div>
+    </div>
+
+    <div class="form-field">
+        <label>Default Cost:</label>
+        <div>
+            <InputNumber @bind-Value="Product.DefaultCost" />
+            <ValidationMessage For="@(() => Product.DefaultCost)" />
+        </div>
+    </div>
+
+
+@code {
+    [Parameter] public Product Product { get; set; }  
+}

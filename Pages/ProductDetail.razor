@@ -1,0 +1,76 @@
+@page "/products/{ProductId:int}"
+@inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
+@implements IDisposable
+
+
+<div class="main">
+    @if (invalidProduct) {
+        <h2>Product not found</h2>
+        <p>This product does not seem to exist.</p>
+    }
+    else if (product == null) {
+        <h2>
+            <text>Loading...</text>
+        </h2>
+    }
+    else {
+        <h2>Product Description @product.Description</h2>
+        <EditForm EditContext=editContext OnValidSubmit=UpdateProduct>
+            <ProductEditor Product=product />
+
+            <button class="checkout-button btn btn-warning" type="Submit" disabled=@isError>
+            Update
+            </button>
+            <DataAnnotationsValidator />
+        </EditForm>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int ProductId { get; set; }
+
+    Product product;
+    bool invalidProduct = false;
+
+    private EditContext editContext;
+    bool isError = false;
+
+    protected override async Task OnParametersSetAsync() {
+        try {
+            product = await HttpClient.GetFromJsonAsync<Product>(
+                $"{NavigationManager.BaseUri}product/{ProductId}");
+        }
+        catch (Exception ex) {
+            invalidProduct = true;
+            Console.Error.WriteLine(ex);
+        }
+
+        editContext = new(product);
+        editContext.OnFieldChanged += HandleFieldChanged;
+    }
+
+    private void HandleFieldChanged(object sender, FieldChangedEventArgs e) {
+        isError = !editContext.Validate();
+        StateHasChanged();
+    }
+
+    public void Dispose() {
+        editContext.OnFieldChanged -= HandleFieldChanged;
+    }
+
+    async Task UpdateProduct() {
+        try{
+            var response = await HttpClient.PutAsJsonAsync(
+                $"{NavigationManager.BaseUri}product/{ProductId}", product);
+
+            NavigationManager.NavigateTo("/");    
+        }
+        catch (Exception ex) {
+            Console.Error.WriteLine(ex);
+        }
+    }
+
+
+}

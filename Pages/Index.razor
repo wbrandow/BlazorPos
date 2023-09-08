@@ -1,0 +1,55 @@
+﻿@page "/"
+
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+
+
+<PageTitle>Blazor POS</PageTitle>
+
+<div class="main">
+    <ul class="product-cards">
+        @if (products != null) {
+            @foreach (var product in products) {
+                <li @onclick="@(async () => await OpenProductDetails(product.ProductId))" 
+                    style="background-color: rgb(149, 149, 255)">
+                    <div class="container">
+                        <div class="brand">
+                            <h2>@product.Brand</h2>
+                        </div>
+                        <div class="product-description">
+                            <strong>@product.Description</strong>
+                        </div> 
+                        <div class="price">
+                            <p>$@product.Price</p>
+                        </div>
+                    </div> 
+                    <div class="select-button">
+                        <button type="button" class="btn-primary">
+                            Select
+                        </button>
+                    </div>
+                </li>     
+            }
+        }
+
+    <div class="row">
+        <div class="col-md-12">
+
+        </div>
+    </div>    
+    </ul>
+</div>
+
+
+
+@code {
+    List<Product> products = new();
+
+    protected override async Task OnInitializedAsync() {
+        products = await HttpClient.GetFromJsonAsync<List<Product>>(NavigationManager.BaseUri + "product");
+    }
+
+    async Task OpenProductDetails(int productId) {
+        NavigationManager.NavigateTo($"/products/{productId}");
+    }
+}
