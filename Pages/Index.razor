@@ -3,6 +3,9 @@
 @inject HttpClient HttpClient
 @inject NavigationManager NavigationManager
 
+@using BlazorPos.Services
+@inject OrderState OrderState
+
 
 <PageTitle>Blazor POS</PageTitle>
 
@@ -31,7 +34,9 @@
                         </div>
                     </div> 
                     <div class="select-button">
-                        <button type="button" class="btn-primary">
+                        <button type="button" class="btn-primary"
+                            @onclick="@(() => OrderState.SelectProduct(product))"
+                            @onclick:stopPropagation>
                             Select
                         </button>
                     </div>
@@ -40,11 +45,47 @@
         }  
     </ul>
 </div>
+<div class="cart">
+    @if (order.Products.Any()) {
+        <div class="order-contents">
+            <h2>Your order</h2>
 
+            @foreach (var selectedProduct in order.Products) {
+                <div class="cart-item">
+                    <div class="remove-button">
+                        <button type="button" class="close text-danger" aria-label="Close"
+                            @onclick="@(() => OrderState.RemoveProduct(selectedProduct))">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="selectedProduct-description">@selectedProduct.Description</div>
+                    <div class="selectedProduct-price">
+                        $@selectedProduct.Price.ToString("0.00")
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else {
+        <div class="empty-cart">Choose a product<br>to get started</div>
+    }
+
+    <div class="order-total @(order.Products.Any() ? "" : "hidden")">
+        <strong>Total:</strong>
+        <span class="total-price">$@order.GetTotalPrice().ToString("0.00")</span>
+        <div class="order-button">
+            <a href="checkout" class="@(OrderState.Order.Products.Count == 0 ? "btn btn-warning disabled" : "btn btn-warning")">
+                Order >
+            </a>
+        </div>    
+    </div>
+</div>
 
 
 @code {
     List<Product> products = new();
+
+    Order order => OrderState.Order;     
 
     protected override async Task OnInitializedAsync() {
         products = await HttpClient.GetFromJsonAsync<List<Product>>(NavigationManager.BaseUri + "product");

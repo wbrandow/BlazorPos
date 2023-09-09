@@ -66,6 +66,13 @@ a, .btn-link {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+   
+.main {
+    flex-grow: 1;
+    overflow-y: auto;
+    background: linear-gradient(rgba(0,0,0,0) 40%, rgba(0,0,0,0.2) 80%);
+    padding: 1.5rem !important;
+}    
 
 .add-product {
     display: block;
@@ -85,6 +92,8 @@ a, .btn-link {
     .product-cards > li {
         list-style-type: none;
         position: relative;
+        box-shadow: 0 3px 4px rgba(0,0,0,0.4);
+        transition: 0.1s ease-out;
     }
 
         .product-cards > li:hover {
@@ -95,6 +104,49 @@ a, .btn-link {
         position: absolute;
         bottom: 0.5rem;
         right: 1rem;
+    }
+
+.cart {
+    background-color: #2b2b2b;
+    display: flex;
+    flex-direction: column;
+    color: white;
+} 
+
+    .cart .order-contents {
+        padding: 1rem;
+    }
+
+    .cart-item {
+        padding: 0.2rem;
+    }
+
+    .selectedProduct-description {
+        display: inline-block;
+        min-width: 15rem;
+    }
+
+    .selectedProduct-price {
+        display: inline-block;
+    }
+
+    .remove-button {
+        display: inline-block;
+    }
+
+    .cart .empty-cart {
+        padding: 1rem;
+    }
+
+    .cart .order-total {
+        padding: 1rem;
+    }
+
+    .cart .order-button {
+        display: block;
+        width: 100%;
+        padding: 1rem;
+        text-align: end;
     }
       
 .edit-product-buttons {

@@ -11,7 +11,7 @@ namespace BlazorPos {
 
         public DateTime CreatedTime { get; set; }
 
-        public List<Product> Products { get; set; }
+        public List<Product> Products { get; set; } = new List<Product>();
 
         public decimal GetTotalPrice() => Products.Sum(p => p.Price);
     }
