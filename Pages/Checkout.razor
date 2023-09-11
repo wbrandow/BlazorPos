@@ -1,0 +1,66 @@
+@page "/checkout"
+@inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
+
+@using BlazorPos.Controllers
+
+@using BlazorPos.Services
+@inject OrderState OrderState
+
+<div class="main">
+    <h3>Order Review</h3>
+    @foreach (var product in Order.Products) {
+        <div class="checkout-item row">
+            <div class="checkout-product-description col-sm-9">
+                <strong>
+                    @product.Brand
+                    @product.Description
+                </strong>
+            </div>
+            <div class="checkout-product-price col-sm-3">
+                <strong>
+                    $@product.Price.ToString("0.00")
+                </strong>
+            </div>
+        </div>
+    }   
+
+    <div class="checkout-total-price">
+        <p>
+            <strong>
+                Total price:
+                $@Order.GetTotalPrice().ToString("0.00")
+            </strong>
+        </p>
+    </div>
+
+    <div class="checkout-buttons row">
+        <div class="checkout-back-button col-sm-6">
+            <button type="button" class="btn btn-warning" @onclick="@(() => Back())">
+                @("< Back")
+            </button>
+        </div>
+        <div class="checkout-confirm-button col-sm-6">
+            <button type="button" class="btn btn-primary" @onclick="@(async () => await PlaceOrder())">
+                Confirm Order
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    Order Order => OrderState.Order;
+
+    private void Back() {
+        NavigationManager.NavigateTo("/");
+    }
+
+    async Task PlaceOrder() {
+        var response = await HttpClient.PostAsJsonAsync(NavigationManager.BaseUri + "api/orders", OrderState.Order);
+        OrderState.ResetOrder();
+        NavigationManager.NavigateTo($"/orders");    
+    }
+}
+
+
+

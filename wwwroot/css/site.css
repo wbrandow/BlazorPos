@@ -160,3 +160,24 @@ a, .btn-link {
     .delete-button {
         margin-left: 0.25rem;
     }
+
+.checkout-product-description {
+    display: inline-block;
+    min-width: 15rem;
+}   
+
+.checkout-product-price {
+    display: inline-block;
+    text-align: end;
+}
+
+.checkout-total-price {
+    display: block;
+    width: 100%;
+    padding: 1rem;
+    text-align: end;
+}    
+
+.checkout-confirm-button {
+    text-align: end;
+}

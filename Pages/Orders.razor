@@ -1,0 +1,22 @@
+@page "/orders"
+
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+
+<div class="main">
+    @foreach (var order in orders) {
+        <div>
+            @order.CreatedTime
+            <strong> - - - @order.Products.Count</strong>
+        </div>
+    }
+</div>
+
+@code {
+    List<Order> orders = new List<Order>();
+    
+    protected override async Task OnInitializedAsync() {
+        orders = await HttpClient.GetFromJsonAsync<List<Order>>(
+            $"{NavigationManager.BaseUri}api/orders");
+    }
+}

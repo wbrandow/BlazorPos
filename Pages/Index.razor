@@ -88,7 +88,7 @@
     Order order => OrderState.Order;     
 
     protected override async Task OnInitializedAsync() {
-        products = await HttpClient.GetFromJsonAsync<List<Product>>(NavigationManager.BaseUri + "product");
+        products = await HttpClient.GetFromJsonAsync<List<Product>>(NavigationManager.BaseUri + "api/products");
     }
 
     async Task OpenProductDetails(int productId) {

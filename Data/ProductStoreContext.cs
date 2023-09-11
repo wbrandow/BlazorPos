@@ -11,5 +11,10 @@ public class ProductStoreContext : DbContext {
 
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Order>()
+            .HasMany(o => o.Products)
+            .WithOne();
+    
     }
 }

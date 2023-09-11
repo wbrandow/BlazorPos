@@ -4,7 +4,7 @@ using BlazorPos.Data;
 
 namespace BlazorPos.Controllers;
 
-[Route("product")]
+[Route("api/products")]
 [ApiController]
 public class ProductController : Controller {
     private readonly ProductStoreContext _db;

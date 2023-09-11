@@ -44,7 +44,7 @@
     protected override async Task OnParametersSetAsync() {
         try {
             product = await HttpClient.GetFromJsonAsync<Product>(
-                $"{NavigationManager.BaseUri}product/{ProductId}");
+                $"{NavigationManager.BaseUri}api/products/{ProductId}");
         }
         catch (Exception ex) {
             invalidProduct = true;
@@ -67,7 +67,7 @@
     async Task UpdateProduct() {
         try{
             var response = await HttpClient.PutAsJsonAsync(
-                $"{NavigationManager.BaseUri}product/{ProductId}", product);
+                $"{NavigationManager.BaseUri}api/products/{ProductId}", product);
 
             NavigationManager.NavigateTo("/");    
         }
@@ -79,7 +79,7 @@
     async Task DeleteProduct() {
         try {
             var response = await HttpClient.DeleteAsync(
-                $"{NavigationManager.BaseUri}product/{ProductId}");
+                $"{NavigationManager.BaseUri}api/products/{ProductId}");
 
             NavigationManager.NavigateTo("/");
         }
