@@ -3,16 +3,47 @@ namespace BlazorPos.Services;
 public class OrderState {
     public Order Order { get; private set; } = new Order();
 
+    public OrderProduct OrderProduct { get; set; }
+
     public OrderState() {
         Order = new Order();
     }
 
     public void SelectProduct(Product product) {
-        Order.Products.Add(product);
+        if (Order.OrderProducts.Any(op => op.ProductId == product.Id)) {
+            var orderProductToUpdate = Order.OrderProducts.FirstOrDefault(op => op.ProductId == product.Id);
+            orderProductToUpdate.QtyOnOrder++;
+        }
+        else {
+            OrderProduct = new OrderProduct() {
+            OrderId = Order.OrderId,
+            Order = Order,
+            ProductId = product.Id,
+            Product = product,
+            QtyOnOrder = 1,
+            };
+
+            Order.OrderProducts.Add(OrderProduct);
+            OrderProduct = null;
+        }
     }
 
-    public void RemoveProduct(Product product) {
-        Order.Products.Remove(product);
+    public void RemoveProduct(int productId) {
+        OrderProduct = new OrderProduct();
+
+        foreach (var op in Order.OrderProducts) {
+            if (op.ProductId == productId) {
+                OrderProduct = op;
+            }
+        }
+        if (OrderProduct.QtyOnOrder > 1) {
+            OrderProduct.QtyOnOrder--;
+        }
+        else {
+            Order.OrderProducts.Remove(OrderProduct);
+        }
+    
+        OrderProduct = null;
     }
 
     public void ResetOrder() {

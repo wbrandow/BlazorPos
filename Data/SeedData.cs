@@ -4,7 +4,7 @@ public static class SeedData {
     public static void Initialize(ProductStoreContext db) {
         var products = new Product[] {
             new Product() {
-                ProductId = 1,
+                Id = 1,
                 UPC = "123456789876",
                 EAN = "0123456789876",
                 SKU = "0123456789876",
@@ -17,7 +17,7 @@ public static class SeedData {
                 DefaultCost = 5.99m,
             },
             new Product() {
-                ProductId = 2,
+                Id = 2,
                 UPC = "223456789876",
                 EAN = "0223456789876",
                 SKU = "0223456789876",
@@ -30,7 +30,7 @@ public static class SeedData {
                 DefaultCost = 9.99m,
             },
             new Product() {
-                ProductId = 3,
+                Id = 3,
                 UPC = "323456789876",
                 EAN = "0323456789876",
                 SKU = "0323456789876",

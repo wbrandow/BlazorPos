@@ -9,17 +9,23 @@
 
 <div class="main">
     <h3>Order Review</h3>
-    @foreach (var product in Order.Products) {
+    @foreach (var orderProduct in Order.OrderProducts) {
         <div class="checkout-item row">
-            <div class="checkout-product-description col-sm-9">
+            <div class="checkout-product-description col-sm-8">
                 <strong>
-                    @product.Brand
-                    @product.Description
+                    @orderProduct.Product.Brand
+                    @orderProduct.Product.Description
                 </strong>
             </div>
             <div class="checkout-product-price col-sm-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span>@orderProduct.QtyOnOrder X</span>
+                    <span>$@orderProduct.Product.Price.ToString("0.00")</span>
+                </div>
+            </div>
+            <div class="checkout-line-price col-sm-1">
                 <strong>
-                    $@product.Price.ToString("0.00")
+                    $@orderProduct.GetLinePrice().ToString("0.00")
                 </strong>
             </div>
         </div>
@@ -51,12 +57,19 @@
 @code {
     Order Order => OrderState.Order;
 
+    List<Product> Products = new List<Product>();
+        
+    protected override void OnInitialized() {
+        Products = Order.OrderProducts.Select(op => op.Product).ToList();
+    } 
+
     private void Back() {
         NavigationManager.NavigateTo("/");
     }
 
     async Task PlaceOrder() {
-        var response = await HttpClient.PostAsJsonAsync(NavigationManager.BaseUri + "api/orders", OrderState.Order);
+        Console.WriteLine("#In Checkout.razor#PlaceOrder():  Order Id = " + Order.OrderId);
+        var response = await HttpClient.PostAsJsonAsync(NavigationManager.BaseUri + "api/orders", Order);
         OrderState.ResetOrder();
         NavigationManager.NavigateTo($"/orders");    
     }

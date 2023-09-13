@@ -31,7 +31,7 @@ main[b-u88v4nhr1p] {
         text-overflow: ellipsis;
     }
 
-@media (max-width: 640.98px) {
+@media (max-width: 799.98px) {
     .top-row:not(.auth)[b-u88v4nhr1p] {
         display: none;
     }
@@ -45,7 +45,7 @@ main[b-u88v4nhr1p] {
     }
 }
 
-@media (min-width: 641px) {
+@media (min-width: 800px) {
     .page[b-u88v4nhr1p] {
         flex-direction: row;
     }

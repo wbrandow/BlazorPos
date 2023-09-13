@@ -21,7 +21,7 @@ public class ProductController : Controller {
     [HttpGet("{ProductId}")]
     public async Task<ActionResult<Product>> GetProduct(int ProductId) {
         var product = await _db.Products
-            .Where(p => p.ProductId == ProductId)
+            .Where(p => p.Id == ProductId)
             .SingleOrDefaultAsync();
 
         if (product == null) {
@@ -34,7 +34,7 @@ public class ProductController : Controller {
     [HttpPut("{ProductId}")]
     public async Task<ActionResult<Product>> UpdateProduct(int ProductId, Product updatedProduct) {
         var existingProduct = await _db.Products
-            .Where(p => p.ProductId == ProductId)
+            .Where(p => p.Id == ProductId)
             .SingleOrDefaultAsync();
 
         if (existingProduct == null) {
@@ -67,13 +67,13 @@ public class ProductController : Controller {
         _db.Products.Attach(newProduct);
         await _db.SaveChangesAsync();
 
-        return newProduct.ProductId;
+        return newProduct.Id;
     }
 
     [HttpDelete("{ProductId}")]
     public async Task<ActionResult<bool>> DeleteProduct(int ProductId) {
         var product = await _db.Products
-        .Where(p => p.ProductId == ProductId)
+        .Where(p => p.Id == ProductId)
         .SingleOrDefaultAsync();
 
         if (product == null) {

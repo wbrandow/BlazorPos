@@ -108,17 +108,21 @@ a, .btn-link {
 
 .cart {
     background-color: #2b2b2b;
-    display: flex;
-    flex-direction: column;
+    display: block;
+    width: 100%;
     color: white;
 } 
 
     .cart .order-contents {
         padding: 1rem;
+        width: 100%;
     }
 
     .cart-item {
         padding: 0.2rem;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
     }
 
     .selectedProduct-description {
@@ -128,6 +132,15 @@ a, .btn-link {
 
     .selectedProduct-price {
         display: inline-block;
+    }
+
+    .selectedProduct-qty {
+        display: inline-block;
+    }
+
+    .selectedProduct-line-price {
+        flex: 1;
+        text-align: end;
     }
 
     .remove-button {
@@ -164,9 +177,14 @@ a, .btn-link {
 .checkout-product-description {
     display: inline-block;
     min-width: 15rem;
-}   
+}
 
 .checkout-product-price {
+    display: flex;
+    justify-content: space-between;
+}
+
+.checkout-line-price {
     display: inline-block;
     text-align: end;
 }
@@ -181,3 +199,5 @@ a, .btn-link {
 .checkout-confirm-button {
     text-align: end;
 }
+
+

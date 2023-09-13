@@ -7,7 +7,7 @@ namespace BlazorPos {
      *  Represents a single item
      */
     public class Product {
-        public int ProductId { get; set; }
+        public int Id { get; set; }
 
         [MaxLength(50, ErrorMessage = "Input is too long.")]
         public string UPC { get; set; }

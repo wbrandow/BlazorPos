@@ -15,12 +15,25 @@ public class OrderController : Controller {
 
     [HttpGet]
     public async Task<ActionResult<List<Order>>> GetOrders() {
-        return (await _db.Orders.ToListAsync()).OrderByDescending(o => o.CreatedTime).ToList();
+        var orders = await _db.Orders
+            .Include(o => o.OrderProducts)
+                .ThenInclude(op => op.Product)
+            .ToListAsync();
+
+        return orders;    
     }
 
     [HttpPost]
-    public async Task<ActionResult<int>> CreateOrder(Order newOrder) {
+    public async Task<ActionResult<int>> CreateOrder(Order Order) {
+        Order newOrder = new Order();
         newOrder.CreatedTime = DateTime.Now;
+
+        foreach (var orderProduct in Order.OrderProducts) {
+            newOrder.OrderProducts.Add(orderProduct);
+            orderProduct.Order = newOrder;
+            Console.WriteLine(orderProduct.Product.Description);
+            Console.WriteLine("Product Id: " + orderProduct.ProductId);
+        }
 
         _db.Orders.Attach(newOrder);
         await _db.SaveChangesAsync();

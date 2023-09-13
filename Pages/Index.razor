@@ -18,9 +18,9 @@
     </div>
 
     <ul class="product-cards">
-        @if (products != null) {
-            @foreach (var product in products) {
-                <li @onclick="@(async () => await OpenProductDetails(product.ProductId))" 
+        @if (Products != null) {
+            @foreach (var product in Products) {
+                <li @onclick="@(async () => await OpenProductDetails(product.Id))" 
                     style="background-color: rgb(149, 149, 255)">
                     <div class="container">
                         <div class="brand">
@@ -46,21 +46,24 @@
     </ul>
 </div>
 <div class="cart">
-    @if (order.Products.Any()) {
+    @if (Order.OrderProducts.Any()) {
         <div class="order-contents">
             <h2>Your order</h2>
 
-            @foreach (var selectedProduct in order.Products) {
+            @foreach (var orderProduct in Order.OrderProducts) {
                 <div class="cart-item">
                     <div class="remove-button">
-                        <button type="button" class="close text-danger" aria-label="Close"
-                            @onclick="@(() => OrderState.RemoveProduct(selectedProduct))">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                        <a class="oi oi-trash" @onclick="@(() => OrderState.RemoveProduct(orderProduct.ProductId))"></a>    
                     </div>
-                    <div class="selectedProduct-description">@selectedProduct.Description</div>
+                    <div class="selectedProduct-description">@orderProduct.Product.Description</div>
+                    <div class="selectedProduct-qty">
+                        @orderProduct.QtyOnOrder X
+                    </div>
                     <div class="selectedProduct-price">
-                        $@selectedProduct.Price.ToString("0.00")
+                        $@orderProduct.Product.Price.ToString("0.00")
+                    </div>
+                    <div class="selectedProduct-line-price">
+                        $@orderProduct.GetLinePrice().ToString("0.00")
                     </div>
                 </div>
             }
@@ -70,11 +73,11 @@
         <div class="empty-cart">Choose a product<br>to get started</div>
     }
 
-    <div class="order-total @(order.Products.Any() ? "" : "hidden")">
+    <div class="order-total @(ProductsInOrder.Any() ? "" : "hidden")">
         <strong>Total:</strong>
-        <span class="total-price">$@order.GetTotalPrice().ToString("0.00")</span>
+        <span class="total-price">$@Order.GetTotalPrice().ToString("0.00")</span>
         <div class="order-button">
-            <a href="checkout" class="@(OrderState.Order.Products.Count == 0 ? "btn btn-warning disabled" : "btn btn-warning")">
+            <a href="checkout" class="@(ProductsInOrder.Count == 0 ? "btn btn-warning disabled" : "btn btn-warning")">
                 Order >
             </a>
         </div>    
@@ -83,12 +86,19 @@
 
 
 @code {
-    List<Product> products = new();
+    List<Product> Products = new List<Product>();
 
-    Order order => OrderState.Order;     
+    List<Product> ProductsInOrder = new List<Product>();    
+
+    Order Order => OrderState.Order;     
 
     protected override async Task OnInitializedAsync() {
-        products = await HttpClient.GetFromJsonAsync<List<Product>>(NavigationManager.BaseUri + "api/products");
+        Products = await HttpClient.GetFromJsonAsync<List<Product>>(NavigationManager.BaseUri + "api/products");
+    }
+
+    protected override void OnAfterRender(bool firstRender) {
+        ProductsInOrder = Order.OrderProducts.Select(op => op.Product).ToList();
+        StateHasChanged();
     }
 
     async Task OpenProductDetails(int productId) {

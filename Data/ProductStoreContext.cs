@@ -9,12 +9,20 @@ public class ProductStoreContext : DbContext {
 
     public DbSet<Product> Products { get; set; }
 
+    public DbSet<OrderProduct> OrderProducts { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<Order>()
-            .HasMany(o => o.Products)
-            .WithOne();
-    
+        modelBuilder.Entity<OrderProduct>()
+            .HasOne(op => op.Order)
+            .WithMany(o => o.OrderProducts)
+            .HasForeignKey(op => op.OrderId);
+
+        modelBuilder.Entity<OrderProduct>()
+            .HasOne(op => op.Product)
+            .WithMany()
+            .HasForeignKey(op => op.ProductId);
+
     }
 }
