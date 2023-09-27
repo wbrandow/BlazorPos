@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BlazorPos.Data;
+using System.ComponentModel;
 
 namespace BlazorPos.Controllers;
 
@@ -30,6 +31,36 @@ public class ProductController : Controller {
 
         return product;    
     }
+
+        [HttpGet("results")]
+        public async Task<ActionResult<List<Product>>> GetResults(string searchField, string searchValue) {
+            if (searchField == "Description") {
+                return await _db.Products
+                    .Where(p => p.Description == searchValue)
+                    .ToListAsync();
+            }
+            else if (searchField == "Brand") {
+                return await _db.Products
+                    .Where(p => p.Brand == searchValue)
+                    .ToListAsync();
+            }
+            else if (searchField == "Vendor") {
+                return await _db.Products
+                    .Where(p => p.Vendor == searchValue)
+                    .ToListAsync();
+            }
+            else {
+                return await _db.Products
+                    .Where(p => p.Description == searchValue || p.Brand == searchValue || p.Vendor == searchValue)
+                    .ToListAsync();
+            }
+        }    
+
+
+
+
+
+
 
     [HttpPut("{ProductId}")]
     public async Task<ActionResult<Product>> UpdateProduct(int ProductId, Product updatedProduct) {

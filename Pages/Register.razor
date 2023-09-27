@@ -1,0 +1,81 @@
+@page "/register"
+@using Microsoft.AspNetCore.Identity;
+@inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
+@implements IDisposable
+
+<h2>Register</h2>
+@if (showUserExistsAlert)
+{
+    <div class="alert alert-danger" role="alert">
+        User already exists. Please choose a different username.
+    </div>
+}
+
+<EditForm EditContext=editContext OnValidSubmit=RegisterUserAsync>
+    <UserForm User=User />
+    <button type="submit" class="btn btn-primary" disabled=@isError>
+        Register
+    </button>
+    <DataAnnotationsValidator />
+</EditForm>
+
+@code {
+    [Inject]
+    private UserManager<IdentityUser> UserManager { get; set; }
+
+    [Inject]
+    private SignInManager<IdentityUser> SignInManager { get; set; }    
+
+    User User = new User();
+    private EditContext editContext;
+    bool isError = false;
+    private bool showUserExistsAlert = false;
+
+
+    protected override void OnInitialized() {
+        editContext = new(User);
+        editContext.OnFieldChanged += HandleFieldChanged;
+    }
+
+    private void HandleFieldChanged(object sender, FieldChangedEventArgs e) {
+        isError = !editContext.Validate();
+        StateHasChanged();
+    }
+
+    public void Dispose() {
+        editContext.OnFieldChanged -= HandleFieldChanged;
+    }
+
+    private async Task RegisterUserAsync() {
+
+        // Check if the user already exists (optional, depending on your requirements)
+        var existingUser = await UserManager.FindByNameAsync(User.Username);
+        if (existingUser != null)
+        {
+            // Handle user already exists error.
+            showUserExistsAlert = true;
+            return;
+        }
+
+        // Create a new user
+        var newUser = new IdentityUser { UserName = User.Username };
+
+        // Hash the user's password
+        var result = await UserManager.CreateAsync(newUser, User.Password);
+
+        if (result.Succeeded)
+        {
+            // Redirect to a post-registration page or perform other actions
+            NavigationManager.NavigateTo($"/");
+        }
+        else
+        {
+            // Handle registration failure, display errors to the user
+            foreach (var error in result.Errors)
+            {
+                Console.WriteLine(error);
+            }
+        }
+    }
+}

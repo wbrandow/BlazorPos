@@ -10,11 +10,31 @@
 <PageTitle>Blazor POS</PageTitle>
 
 <div class="main">
-    <div class="add-product">
-        <button type="button" class="btn btn-primary"
-            @onclick="@(async () => await AddNewProduct())">
-            New Product
-        </button>
+    <div class="product-controls">
+        <div class="search-products">
+            <div class="input-group">
+                <input @bind="searchValue" />
+                <select class="custom-select" id="inputGroupSelect04" @bind="searchField">
+                    <option selected>Any</option>
+                    <option value="Description">Description</option>
+                    <option value="Brand">Brand</option>
+                    <option value="Vendor">Vendor</option>
+                </select>
+                <div class="input-group-append">
+                    <button class="btn btn-secondary" type="button" 
+                        @onclick="@(() => FilterProducts())">
+                        Search
+                    </button>
+                </div>
+            </div>
+        </div>    
+
+        <div class="add-product">
+            <button type="button" class="btn btn-primary"
+                @onclick="@(async () => await AddNewProduct())">
+                New Product
+            </button>
+        </div>       
     </div>
 
     <ul class="product-cards">
@@ -90,7 +110,10 @@
 
     List<Product> ProductsInOrder = new List<Product>();    
 
-    Order Order => OrderState.Order;     
+    Order Order => OrderState.Order;    
+
+    private string? searchValue; 
+    private string? searchField;
 
     protected override async Task OnInitializedAsync() {
         Products = await HttpClient.GetFromJsonAsync<List<Product>>(NavigationManager.BaseUri + "api/products");
@@ -107,5 +130,18 @@
 
     async Task AddNewProduct() {
         NavigationManager.NavigateTo($"/products/new"); 
+    }
+
+   async Task FilterProducts() {
+        if (string.IsNullOrWhiteSpace(searchField)) {
+            searchField = "Any";
+        }
+
+        if (string.IsNullOrWhiteSpace(searchValue)) {
+            Products = await HttpClient.GetFromJsonAsync<List<Product>>(NavigationManager.BaseUri + "api/products");
+            return;
+        }
+
+        Products = await HttpClient.GetFromJsonAsync<List<Product>>(NavigationManager.BaseUri + $"api/products/results?searchField={searchField}&searchValue={searchValue}");
     }
 }

@@ -1,0 +1,73 @@
+@page "/login"
+
+@using Microsoft.AspNetCore.Identity;
+@inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
+@implements IDisposable
+
+<h2>Login</h2>
+@if (loginFailed)
+{
+    <div class="alert alert-danger" role="alert">
+        Incorrect username and/or password. Try again.
+    </div>
+}
+
+<EditForm EditContext=editContext OnValidSubmit=LoginUserAsync>
+    <UserForm User=User />
+    <button type="submit" class="btn btn-primary" disabled=@isError>
+        Login
+    </button>
+    <DataAnnotationsValidator />
+</EditForm>
+
+@code {
+    [Inject]
+    private UserManager<IdentityUser> UserManager { get; set; }
+
+    [Inject]
+    private SignInManager<IdentityUser> SignInManager { get; set; }
+
+    User User = new User();
+    private EditContext editContext;
+    bool isError = false;
+    private bool loginFailed = false;
+
+    protected override void OnInitialized() {
+        editContext = new(User);
+        editContext.OnFieldChanged += HandleFieldChanged;
+    }
+
+    private void HandleFieldChanged(object sender, FieldChangedEventArgs e) {
+        isError = !editContext.Validate();
+        StateHasChanged();
+    }
+
+    public void Dispose() {
+        editContext.OnFieldChanged -= HandleFieldChanged;
+    }
+
+    private async Task LoginUserAsync() {
+        // Attempt to find the user by username (you can also use email or other identifiers)
+        var user = await UserManager.FindByNameAsync(User.Username);
+
+        if (user != null) {
+            // Attempt to sign in the user using SignInManager
+            var result = await SignInManager.PasswordSignInAsync(user, User.Password, isPersistent: false, lockoutOnFailure: false);
+
+            if (result.Succeeded) {
+                // Redirect to a successful login page or perform other actions
+                NavigationManager.NavigateTo("/");
+            }
+            else {
+                loginFailed = true;
+                return;
+            }
+        }
+        else {
+            loginFailed = true;
+            return;
+        }
+    }
+
+}

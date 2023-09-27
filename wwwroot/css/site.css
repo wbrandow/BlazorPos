@@ -72,11 +72,27 @@ a, .btn-link {
     overflow-y: auto;
     background: linear-gradient(rgba(0,0,0,0) 40%, rgba(0,0,0,0.2) 80%);
     padding: 1.5rem !important;
-}    
+}  
+
+.product-controls {
+    display: flex;
+    align-items: center;
+}
+
+.search-products {
+    flex: 1;
+    margin-right: 10px;
+}
+
+.dropdown-menu {
+    display: none;
+  }
+  
+.dropdown:focus-within .dropdown-menu {
+    display: block;
+  }
 
 .add-product {
-    display: block;
-    width: 100%;
     padding: 1rem;
     text-align: end;
 }

@@ -1,0 +1,18 @@
+<div class="form-field">
+    <label>Username:</label>
+    <div>
+        <InputText @bind-Value="User.Username" />
+        <ValidationMessage For="@(() => User.Username)" />
+    </div>
+</div>
+<div class="form-field">
+    <label>Password:</label>
+    <div>
+        <InputText @bind-Value="User.Password" />
+        <ValidationMessage For="@(() => User.Password)" />
+    </div>
+</div>
+
+@code {
+    [Parameter] public User User { get; set; }  
+}
