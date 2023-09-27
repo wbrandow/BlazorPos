@@ -1,8 +1,8 @@
 # BlazorPos
 POS system created using Blazor server to practice with C#, ASP.NET, Blazor, Bootstrap, and more.  
 
-Screenshot of the home page as of 9/10/2023
-<img width="1062" alt="2023-09-11_BlazorPos_Home" src="https://github.com/wbrandow/BlazorPos/assets/31283921/76d40c54-a592-4826-b722-3ed9aba2e49d">
+Screenshot of the home page as of 9/27/2023
+<img width="1358" alt="2023-09-27_BlazorPos_Home" src="https://github.com/wbrandow/BlazorPos/assets/31283921/aaff5d55-29be-4f36-8611-b11cf29d314c">
 
 
 Screenshot of the edit product page as of 9/10/2023
