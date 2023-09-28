@@ -63,42 +63,7 @@ public class ProductController : Controller {
                             || p.UPC.Contains(searchValue))
                         .ToListAsync();
             }
-            /*
-            if (searchField == "Description") {
-                return await _db.Products
-                    .Where(p => p.Description.Contains(searchValue))
-                    .ToListAsync();
-            }
-            else if (searchField == "Brand") {
-                return await _db.Products
-                    .Where(p => p.Brand.Contains(searchValue))
-                    .ToListAsync();
-            }
-            else if (searchField == "Vendor") {
-                return await _db.Products
-                    .Where(p => p.Vendor.Contains(searchValue))
-                    .ToListAsync();
-            }
-            else if (searchField == "UPC") {
-                return await _db.Products
-                    .Where(p => p.UPC.Contains(searchValue))
-                    .ToListAsync();
-            }
-            else {
-                return await _db.Products
-                    .Where(p => p.Description.Contains(searchValue) 
-                        || p.Brand.Contains(searchValue) 
-                        || p.Vendor.Contains(searchValue))
-                    .ToListAsync();
-            }
-            */
         }    
-
-
-
-
-
-
 
     [HttpPut("{ProductId}")]
     public async Task<ActionResult<Product>> UpdateProduct(int ProductId, Product updatedProduct) {
