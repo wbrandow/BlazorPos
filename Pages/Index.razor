@@ -31,7 +31,7 @@
 
         <div class="add-product">
             <button type="button" class="btn btn-primary"
-                @onclick="@(async () => await AddNewProduct())">
+                @onclick="@(() => AddNewProduct())">
                 New Product
             </button>
         </div>       
@@ -125,11 +125,7 @@
         StateHasChanged();
     }
 
-    async Task OpenProductDetails(int productId) {
-        NavigationManager.NavigateTo($"/products/{productId}");
-    }
-
-    async Task AddNewProduct() {
+    private void AddNewProduct() {
         NavigationManager.NavigateTo($"/products/new"); 
     }
 
