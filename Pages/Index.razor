@@ -55,8 +55,8 @@
                         </div> 
                         <div class="select-button">
                             <button type="button" class="btn-primary"
-                                @onclick="@(() => OrderState.SelectProduct(product))"
-                                @onclick:stopPropagation>
+                                @onclick="@(() => SelectProduct(product))"
+                                @onclick:preventDefault @onclick:stopPropagation>
                                 Select
                             </button>
                         </div>
@@ -74,14 +74,14 @@
             @foreach (var orderProduct in Order.OrderProducts) {
                 <div class="cart-item">
                     <div class="remove-button">
-                        <a class="oi oi-trash" @onclick="@(() => OrderState.RemoveProduct(orderProduct.ProductId))"></a>    
+                        <a class="oi oi-trash" @onclick="@(() => RemoveProduct(orderProduct.ProductId))"></a>    
                     </div>
                     <div class="selectedProduct-description">@orderProduct.Product.Description</div>
                     <div class="selectedProduct-qty">
-                        @orderProduct.QtyOnOrder X
+                        <input @bind="@orderProduct.QtyOnOrder" />
                     </div>
                     <div class="selectedProduct-price">
-                        $@orderProduct.Product.Price.ToString("0.00")
+                        X $@orderProduct.Product.Price.ToString("0.00")
                     </div>
                     <div class="selectedProduct-line-price">
                         $@orderProduct.GetLinePrice().ToString("0.00")
@@ -95,8 +95,10 @@
     }
 
     <div class="order-total @(ProductsInOrder.Any() ? "" : "hidden")">
-        <strong>Total:</strong>
-        <span class="total-price">$@Order.GetTotalPrice().ToString("0.00")</span>
+        <div class="cart-total-price">    
+            <strong>Total:</strong>
+            <span>$@Order.GetTotalPrice().ToString("0.00")</span>
+        </div>    
         <div class="order-button">
             <a href="checkout" class="@(ProductsInOrder.Count == 0 ? "btn btn-warning disabled" : "btn btn-warning")">
                 Order >
@@ -118,11 +120,12 @@
 
     protected override async Task OnInitializedAsync() {
         Products = await HttpClient.GetFromJsonAsync<List<Product>>(NavigationManager.BaseUri + "api/products");
+        Console.WriteLine("Completed OnInitializedAsync");    
     }
 
     protected override void OnAfterRender(bool firstRender) {
         ProductsInOrder = Order.OrderProducts.Select(op => op.Product).ToList();
-        StateHasChanged();
+        Console.WriteLine("Completed OnAfterRender");
     }
 
     private void AddNewProduct() {
@@ -140,5 +143,15 @@
         }
 
         Products = await HttpClient.GetFromJsonAsync<List<Product>>(NavigationManager.BaseUri + $"api/products/results?searchField={searchField}&searchValue={searchValue}");
+    }
+
+    private void SelectProduct(Product product) {
+        OrderState.SelectProduct(product);
+        StateHasChanged();
+    }
+
+    private void RemoveProduct(int productId) {
+        OrderState.RemoveProduct(productId);
+        StateHasChanged();
     }
 }

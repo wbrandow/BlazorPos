@@ -161,7 +161,8 @@ a, .btn-link {
 
     .selectedProduct-description {
         display: inline-block;
-        min-width: 15rem;
+        width: 10rem;
+        overflow: scroll;
     }
 
     .selectedProduct-price {
@@ -170,6 +171,10 @@ a, .btn-link {
 
     .selectedProduct-qty {
         display: inline-block;
+    }
+
+    .selectedProduct-qty > input {
+        width: 2rem;
     }
 
     .selectedProduct-line-price {
@@ -181,15 +186,22 @@ a, .btn-link {
         display: inline-block;
     }
 
-    .cart .empty-cart {
+    .empty-cart {
         padding: 1rem;
     }
 
-    .cart .order-total {
+
+
+    .order-total {
         padding: 1rem;
     }
 
-    .cart .order-button {
+    .cart-total-price {
+        width: 100%;
+        text-align: end;
+    }
+
+    .order-button {
         display: block;
         width: 100%;
         padding: 1rem;
