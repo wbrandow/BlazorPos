@@ -40,26 +40,27 @@
     <ul class="product-cards">
         @if (Products != null) {
             @foreach (var product in Products) {
-                <li @onclick="@(async () => await OpenProductDetails(product.Id))" 
-                    style="background-color: rgb(149, 149, 255)">
-                    <div class="container">
-                        <div class="brand">
-                            <h2>@product.Brand</h2>
-                        </div>
-                        <div class="product-description">
-                            <strong>@product.Description</strong>
+                <li>
+                    <a href="/products/@product.Id">
+                        <div class="product-container">
+                            <div class="brand">
+                                <h2>@product.Brand</h2>
+                            </div>
+                            <div class="product-description">
+                                <strong>@product.Description</strong>
+                            </div> 
+                            <div class="price">
+                                <p>$@product.Price.ToString("0.00")</p>
+                            </div>
                         </div> 
-                        <div class="price">
-                            <p>$@product.Price.ToString("0.00")</p>
+                        <div class="select-button">
+                            <button type="button" class="btn-primary"
+                                @onclick="@(() => OrderState.SelectProduct(product))"
+                                @onclick:stopPropagation>
+                                Select
+                            </button>
                         </div>
-                    </div> 
-                    <div class="select-button">
-                        <button type="button" class="btn-primary"
-                            @onclick="@(() => OrderState.SelectProduct(product))"
-                            @onclick:stopPropagation>
-                            Select
-                        </button>
-                    </div>
+                    </a>    
                 </li>     
             }
         }  

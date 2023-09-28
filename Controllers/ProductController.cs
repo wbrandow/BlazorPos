@@ -34,26 +34,64 @@ public class ProductController : Controller {
 
         [HttpGet("results")]
         public async Task<ActionResult<List<Product>>> GetResults(string searchField, string searchValue) {
+            switch (searchField) {
+                case "Description":
+                    return await _db.Products
+                        .Where(p => p.Description.Contains(searchValue))
+                        .ToListAsync(); 
+                
+                case "Brand":
+                    return await _db.Products
+                        .Where(p => p.Brand.Contains(searchValue))
+                        .ToListAsync();
+                    
+                case "Vendor":
+                    return await _db.Products
+                        .Where(p => p.Vendor.Contains(searchValue))
+                        .ToListAsync();  
+
+                case "UPC":
+                    return await _db.Products
+                        .Where(p => p.UPC.Contains(searchValue))
+                        .ToListAsync();
+
+                default:
+                    return await _db.Products
+                        .Where(p => p.Description.Contains(searchValue) 
+                            || p.Brand.Contains(searchValue) 
+                            || p.Vendor.Contains(searchValue)
+                            || p.UPC.Contains(searchValue))
+                        .ToListAsync();
+            }
+            /*
             if (searchField == "Description") {
                 return await _db.Products
-                    .Where(p => p.Description == searchValue)
+                    .Where(p => p.Description.Contains(searchValue))
                     .ToListAsync();
             }
             else if (searchField == "Brand") {
                 return await _db.Products
-                    .Where(p => p.Brand == searchValue)
+                    .Where(p => p.Brand.Contains(searchValue))
                     .ToListAsync();
             }
             else if (searchField == "Vendor") {
                 return await _db.Products
-                    .Where(p => p.Vendor == searchValue)
+                    .Where(p => p.Vendor.Contains(searchValue))
+                    .ToListAsync();
+            }
+            else if (searchField == "UPC") {
+                return await _db.Products
+                    .Where(p => p.UPC.Contains(searchValue))
                     .ToListAsync();
             }
             else {
                 return await _db.Products
-                    .Where(p => p.Description == searchValue || p.Brand == searchValue || p.Vendor == searchValue)
+                    .Where(p => p.Description.Contains(searchValue) 
+                        || p.Brand.Contains(searchValue) 
+                        || p.Vendor.Contains(searchValue))
                     .ToListAsync();
             }
+            */
         }    
 
 
