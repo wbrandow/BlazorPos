@@ -13,15 +13,18 @@
     <div class="product-controls">
         <div class="search-products">
             <div class="input-group">
-                <input @bind="searchValue" />
-                <select class="custom-select" id="inputGroupSelect04" @bind="searchField">
+                <input @bind="searchValue" aria-label="Input search value" />
+                <select class="custom-select" id="inputGroupSelect04" @bind="searchField" aria-label="Select field to search">
                     <option selected>Any</option>
                     <option value="Description">Description</option>
                     <option value="Brand">Brand</option>
                     <option value="Vendor">Vendor</option>
+                    <option value="UPC">UPC</option>
+                    <option value="EAN">EAN</option>
+                    <option value="SKU">SKU</option>
                 </select>
                 <div class="input-group-append">
-                    <button class="btn btn-secondary" type="button" 
+                    <button class="btn btn-secondary" type="button" aria-label="Search"
                         @onclick="@(() => FilterProducts())">
                         Search
                     </button>
@@ -30,7 +33,7 @@
         </div>    
 
         <div class="add-product">
-            <button type="button" class="btn btn-primary"
+            <button type="button" class="btn btn-primary" aria-label="Create new product"
                 @onclick="@(() => AddNewProduct())">
                 New Product
             </button>
@@ -41,7 +44,7 @@
         @if (Products != null) {
             @foreach (var product in Products) {
                 <li>
-                    <a href="/products/@product.Id">
+                    <a href="/products/@product.Id" aria-label="View product details for @product.Brand - @product.Description">
                         <div class="product-container">
                             <div class="brand">
                                 <h2>@product.Brand</h2>
@@ -54,7 +57,7 @@
                             </div>
                         </div> 
                         <div class="select-button">
-                            <button type="button" class="btn-primary"
+                            <button type="button" class="btn-primary" aria-label="Add @product.Description to cart"
                                 @onclick="@(() => SelectProduct(product))"
                                 @onclick:preventDefault @onclick:stopPropagation>
                                 Select
@@ -74,7 +77,8 @@
             @foreach (var orderProduct in Order.OrderProducts) {
                 <div class="cart-item">
                     <div class="remove-button">
-                        <a class="oi oi-trash" @onclick="@(() => RemoveProduct(orderProduct.ProductId))"></a>    
+                        <button class="oi oi-trash btn-danger" aria-label="Remove Item" 
+                        @onclick="@(() => RemoveProduct(orderProduct.ProductId))"></button>    
                     </div>
                     <div class="selectedProduct-description">@orderProduct.Product.Description</div>
                     <div class="selectedProduct-qty">
@@ -100,7 +104,8 @@
             <span>$@Order.GetTotalPrice().ToString("0.00")</span>
         </div>    
         <div class="order-button">
-            <a href="checkout" class="@(ProductsInOrder.Count == 0 ? "btn btn-warning disabled" : "btn btn-warning")">
+            <a href="checkout" aria-label="Order"
+                class="@(ProductsInOrder.Count == 0 ? "btn btn-warning disabled" : "btn btn-warning")">
                 Order >
             </a>
         </div>    
@@ -120,12 +125,8 @@
 
     protected override async Task OnInitializedAsync() {
         Products = await HttpClient.GetFromJsonAsync<List<Product>>(NavigationManager.BaseUri + "api/products");
+        ProductsInOrder = Order.OrderProducts.Select(op => op.Product).ToList();    
         Console.WriteLine("Completed OnInitializedAsync");    
-    }
-
-    protected override void OnAfterRender(bool firstRender) {
-        ProductsInOrder = Order.OrderProducts.Select(op => op.Product).ToList();
-        Console.WriteLine("Completed OnAfterRender");
     }
 
     private void AddNewProduct() {
@@ -147,11 +148,20 @@
 
     private void SelectProduct(Product product) {
         OrderState.SelectProduct(product);
+        ProductsInOrder = Order.OrderProducts.Select(op => op.Product).ToList();
         StateHasChanged();
     }
 
     private void RemoveProduct(int productId) {
         OrderState.RemoveProduct(productId);
+        ProductsInOrder = Order.OrderProducts.Select(op => op.Product).ToList();
         StateHasChanged();
+    }
+
+    private void HandleKeyDown(KeyboardEventArgs e, int productId) {
+        if (e.Key == "Enter") {
+            // Trigger the removal action when Enter or Space is pressed
+            RemoveProduct(productId);
+        }
     }
 }

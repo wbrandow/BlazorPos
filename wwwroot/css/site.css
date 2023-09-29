@@ -185,6 +185,7 @@ a, .btn-link {
 
     .remove-button {
         display: inline-block;
+        padding-right: 0.5rem;
     }
 
     .empty-cart {

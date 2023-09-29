@@ -55,12 +55,24 @@ public class ProductController : Controller {
                         .Where(p => p.UPC.Contains(searchValue))
                         .ToListAsync();
 
+                case "EAN":
+                    return await _db.Products
+                        .Where(p => p.EAN.Contains(searchValue))
+                        .ToListAsync(); 
+
+                case "SKU":
+                    return await _db.Products
+                        .Where(p => p.SKU.Contains(searchValue))
+                        .ToListAsync();               
+
                 default:
                     return await _db.Products
                         .Where(p => p.Description.Contains(searchValue) 
                             || p.Brand.Contains(searchValue) 
                             || p.Vendor.Contains(searchValue)
-                            || p.UPC.Contains(searchValue))
+                            || p.UPC.Contains(searchValue)
+                            || p.EAN.Contains(searchValue)
+                            || p.SKU.Contains(searchValue))
                         .ToListAsync();
             }
         }    
