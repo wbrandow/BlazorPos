@@ -31,7 +31,7 @@ main {
         text-overflow: ellipsis;
     }
 
-@media (max-width: 799.98px) {
+@media (max-width: 849.98px) {
     .top-row:not(.auth) {
         display: none;
     }
@@ -45,7 +45,7 @@ main {
     }
 }
 
-@media (min-width: 800px) {
+@media (min-width: 850px) {
     .page {
         flex-direction: row;
     }

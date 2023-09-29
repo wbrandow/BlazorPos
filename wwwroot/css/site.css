@@ -153,17 +153,37 @@ a, .btn-link {
         width: 100%;
     }
 
-    .cart-item {
-        padding: 0.2rem;
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
+    @media (max-width: 599.98px) {
+        .cart-item {
+            padding-top: 0.2rem;
+            padding-left: 0.2rem;
+            padding-right:0.2rem;
+            padding-bottom: 1rem;
+            width: 100%;
+            display: inline-block;
+            justify-content: space-between;
+        }
+
+        .selectedProduct-description {
+            display: inline-block;
+            width: 100%;
+            overflow: scroll;
+        }
     }
 
-    .selectedProduct-description {
-        display: inline-block;
-        width: 10rem;
-        overflow: scroll;
+    @media (min-width: 600px) {
+        .cart-item {
+            padding: 0.2rem;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+        }    
+
+        .selectedProduct-description {
+            display: inline-block;
+            width: 15rem;
+            overflow: scroll;
+        }
     }
 
     .selectedProduct-price {
@@ -185,6 +205,7 @@ a, .btn-link {
 
     .remove-button {
         display: inline-block;
+        width: fit-content;
         padding-right: 0.5rem;
     }
 
