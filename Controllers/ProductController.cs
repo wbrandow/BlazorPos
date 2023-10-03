@@ -34,45 +34,47 @@ public class ProductController : Controller {
 
         [HttpGet("results")]
         public async Task<ActionResult<List<Product>>> GetResults(string searchField, string searchValue) {
+            searchValue = searchValue.ToLower();
+
             switch (searchField) {
                 case "Description":
                     return await _db.Products
-                        .Where(p => p.Description.Contains(searchValue))
+                        .Where(p => p.Description.ToLower().Contains(searchValue))
                         .ToListAsync(); 
                 
                 case "Brand":
                     return await _db.Products
-                        .Where(p => p.Brand.Contains(searchValue))
+                        .Where(p => p.Brand.ToLower().Contains(searchValue))
                         .ToListAsync();
                     
                 case "Vendor":
                     return await _db.Products
-                        .Where(p => p.Vendor.Contains(searchValue))
+                        .Where(p => p.Vendor.ToLower().Contains(searchValue))
                         .ToListAsync();  
 
                 case "UPC":
                     return await _db.Products
-                        .Where(p => p.UPC.Contains(searchValue))
+                        .Where(p => p.UPC.ToLower().Contains(searchValue))
                         .ToListAsync();
 
                 case "EAN":
                     return await _db.Products
-                        .Where(p => p.EAN.Contains(searchValue))
+                        .Where(p => p.EAN.ToLower().Contains(searchValue))
                         .ToListAsync(); 
 
                 case "SKU":
                     return await _db.Products
-                        .Where(p => p.SKU.Contains(searchValue))
+                        .Where(p => p.SKU.ToLower().Contains(searchValue))
                         .ToListAsync();               
 
                 default:
                     return await _db.Products
-                        .Where(p => p.Description.Contains(searchValue) 
-                            || p.Brand.Contains(searchValue) 
-                            || p.Vendor.Contains(searchValue)
-                            || p.UPC.Contains(searchValue)
-                            || p.EAN.Contains(searchValue)
-                            || p.SKU.Contains(searchValue))
+                        .Where(p => p.Description.ToLower().Contains(searchValue) 
+                            || p.Brand.ToLower().Contains(searchValue) 
+                            || p.Vendor.ToLower().Contains(searchValue)
+                            || p.UPC.ToLower().Contains(searchValue)
+                            || p.EAN.ToLower().Contains(searchValue)
+                            || p.SKU.ToLower().Contains(searchValue))
                         .ToListAsync();
             }
         }    

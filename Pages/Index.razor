@@ -42,7 +42,7 @@
 
     <ul class="product-cards">
         @if (Products != null) {
-            @foreach (var product in Products) {
+            <Virtualize Items="@Products" Context="product">
                 <li>
                     <a href="/products/@product.Id" aria-label="View product details for @product.Brand - @product.Description">
                         <div class="product-container">
@@ -64,8 +64,8 @@
                             </button>
                         </div>
                     </a>    
-                </li>     
-            }
+                </li>  
+            </Virtualize>       
         }  
     </ul>
 </div>
