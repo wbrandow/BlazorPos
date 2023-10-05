@@ -9,6 +9,8 @@ namespace BlazorPos {
     public class Order {
         public int OrderId { get; set; }
 
+        public string CreatedBy { get; set; }
+
         public DateTime CreatedTime { get; set; }
 
         public List<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();

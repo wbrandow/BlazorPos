@@ -4,6 +4,8 @@
 @inject HttpClient HttpClient
 @inject NavigationManager NavigationManager
 
+@inject AuthenticationStateProvider authStateProvider
+
 <div>
     <div class="your-orders">
         <h2>Your Orders</h2>
@@ -32,10 +34,12 @@
 
 @code {
     List<Order> orders = new List<Order>();
-    
+
     protected override async Task OnInitializedAsync() {
+        string username = authStateProvider.GetAuthenticationStateAsync().Result.User.Identity.Name;
+        
         orders = await HttpClient.GetFromJsonAsync<List<Order>>(
-            $"{NavigationManager.BaseUri}api/orders");
+            $"{NavigationManager.BaseUri}api/orders/{username}");
     }
 }
 

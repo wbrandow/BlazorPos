@@ -3,13 +3,13 @@
 
 @inject HttpClient HttpClient
 @inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider authStateProvider
 
 @using BlazorPos.Services
 @inject OrderState OrderState
 
 
 <PageTitle>Blazor POS</PageTitle>
-  
 <div class="main">
     <div class="product-controls">
         <div class="search-products">
