@@ -18,6 +18,8 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddHttpClient();
 builder.Services.AddSqlite<ProductStoreContext>("Data Source=product.db");
 builder.Services.AddScoped<OrderState>();
+builder.Services.AddOptions();
+builder.Services.AddAuthorizationCore();
 
 var app = builder.Build();
 

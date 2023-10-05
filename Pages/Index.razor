@@ -9,7 +9,7 @@
 
 
 <PageTitle>Blazor POS</PageTitle>
-
+  
 <div class="main">
     <div class="product-controls">
         <div class="search-products">
@@ -113,8 +113,12 @@
     </div>
 </div>
 
-
 @code {
+    private string authMessage = "The user is NOT authenticated.";
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
+
     List<Product> Products = new List<Product>();
 
     List<Product> ProductsInOrder = new List<Product>();    
@@ -127,6 +131,18 @@
     protected override async Task OnInitializedAsync() {
         Products = await HttpClient.GetFromJsonAsync<List<Product>>(NavigationManager.BaseUri + "api/products");
         ProductsInOrder = Order.OrderProducts.Select(op => op.Product).ToList();    
+
+        if (authenticationState is not null)
+        {
+            var authState = await authenticationState;
+            var user = authState?.User;
+
+            if (user?.Identity is not null && user.Identity.IsAuthenticated)
+            {
+                authMessage = $"{user.Identity.Name} is authenticated.";
+            }
+        }
+
         Console.WriteLine("Completed OnInitializedAsync");    
     }
 
