@@ -1,0 +1,58 @@
+<div>
+    @if (Products != null && Products.Any()) {
+        <table class="table table-hover product-search-results-table">
+            <thead>
+                <tr>
+                    <th scope="col">Brand</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Price</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <Virtualize Items="@Products" Context="product">
+                    <tr aria-label="View product details for @product.Brand - @product.Description"
+                            role="button" tabindex="0" 
+                            @onclick="() => OpenProductDetails(product)" @onkeydown="e => HandleKeyDown(e, product)">
+                           <td>@product.Brand</td>
+                            <td>@product.Description</td>
+                            <td>@product.Price</td>
+                            <td>
+                                <div class="select-button">
+                                    <button type="button" class="btn-primary" aria-label="Add @product.Description to cart"
+                                        @onclick="@(() => SelectProduct(product))"
+                                        @onclick:preventDefault @onclick:stopPropagation
+                                        @onkeydown:stopPropagation>
+                                        Select
+                                    </button>
+                                </div>
+                            </td> 
+                    </tr>
+                </Virtualize>
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    [Parameter] public List<Product> Products { get; set; }
+
+    [Parameter] public EventCallback<Product> OnOpenProductDetails { get; set; }    
+
+    [Parameter] public EventCallback<Product> OnSelectProduct { get; set; }
+
+    public async Task OpenProductDetails(Product product) {
+        await OnOpenProductDetails.InvokeAsync(product);
+    }
+
+    public async Task SelectProduct(Product product) {
+        await OnSelectProduct.InvokeAsync(product);
+    }  
+
+    private void HandleKeyDown(KeyboardEventArgs e, Product product) {
+        if (e.Key == "Enter") {
+            // Trigger the action when Enter or Space is pressed
+            OpenProductDetails(product);
+        }
+    }  
+}

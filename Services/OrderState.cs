@@ -20,6 +20,7 @@ public class OrderState {
             Order = Order,
             ProductId = product.Id,
             Product = product,
+            OrderProductPrice = product.Price,
             QtyOnOrder = 1,
             };
 
@@ -36,13 +37,9 @@ public class OrderState {
                 OrderProduct = op;
             }
         }
-        if (OrderProduct.QtyOnOrder > 1) {
-            OrderProduct.QtyOnOrder--;
-        }
-        else {
-            Order.OrderProducts.Remove(OrderProduct);
-        }
-    
+
+        Order.OrderProducts.Remove(OrderProduct);
+        
         OrderProduct = null;
     }
 

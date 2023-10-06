@@ -1,0 +1,74 @@
+<div>
+    <table class="table register-product-detail-table">
+        <tbody>
+            <tr>
+                <h3>@OrderProduct.Product.Brand</h3>
+            </tr>
+            <tr>
+                <h4>@OrderProduct.Product.Description</h4>
+            </tr>
+            <tr>
+                <td>
+                    <label>Qty:</label>
+                    <InputNumber @bind-Value="OrderProduct.QtyOnOrder" />
+                    <ValidationMessage For="@(() => OrderProduct.QtyOnOrder)" />
+                </td>
+                <td>
+                    <label>Price:</label>
+                    <InputNumber @bind-Value="OrderProduct.OrderProductPrice" />
+                    <ValidationMessage For="@(() => OrderProduct.OrderProductPrice)" />
+                </td> 
+
+                <!-- FIXME: Implement discounts -->
+                <td>
+                    <label>Discount:</label>
+                    <InputNumber @bind-Value="OrderProduct.LineDiscount"/>
+                    <ValidationMessage For="@(() => OrderProduct.LineDiscount)" />
+                </td>
+
+                <!-- FIXME: Implment tax -->
+                <td>
+                    <label>Tax:</label>
+                    <InputSelect @bind-Value="OrderProduct.Tax">
+                        <option selected="true" value="true">Yes</option>
+                        <option value="false">No</option>
+                    </InputSelect>
+                </td>       
+            </tr>
+
+            <tr>
+                <td>
+                    <button class="btn btn-danger" aria-label="Remove product from order"
+                        @onclick="@(() => RemoveProduct(OrderProduct.ProductId))">
+                        Remove
+                    </button>
+                </td>
+                <td></td>
+                <td></td>
+                <td>
+                    <button class="btn btn-primary" aria-label="Close product detail"
+                        @onclick="@(() => CloseProductDetail())">
+                        Done
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+@code {
+    [Parameter] public OrderProduct OrderProduct { get; set; }
+
+    [Parameter] public EventCallback<int> OnRemoveProduct { get; set; } 
+
+    [Parameter] public EventCallback OnCloseProductDetail { get; set; }     
+
+    public async Task RemoveProduct(int productId) {
+        await OnRemoveProduct.InvokeAsync(productId);
+    }   
+
+    public async Task CloseProductDetail() {
+        await OnCloseProductDetail.InvokeAsync();
+    }        
+
+}

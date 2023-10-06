@@ -1,0 +1,148 @@
+@page "/cashregister"
+
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+
+@using BlazorPos.Services
+@inject OrderState OrderState
+
+@implements IDisposable
+
+<div class="main">
+    <div class="row">
+        <div class="col-sm-8">
+            <div class="register-search">
+                <div class="input-group">
+                    <input @bind="searchValue" aria-label="Input search value" />
+                    <select class="custom-select" id="inputGroupSelect04" @bind="searchField" aria-label="Select field to search">
+                        <option selected>Any</option>
+                        <option value="Description">Description</option>
+                        <option value="Brand">Brand</option>
+                        <option value="Vendor">Vendor</option>
+                        <option value="UPC">UPC</option>
+                        <option value="EAN">EAN</option>
+                        <option value="SKU">SKU</option>
+                    </select>
+                    <div class="input-group-append">
+                        <button class="btn btn-secondary" type="button" aria-label="Search"
+                            @onclick="@(() => FilterProducts())">
+                            Search
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="register-results">
+                @if (Products.Count() > 1) {
+                    <div>
+                        <ProductSearchResults Products=Products 
+                        OnSelectProduct="OnSelectProductHandler" />
+                    </div>
+                }
+
+                @if (ProductsInOrder != null && ProductsInOrder.Any()) {
+                    <RegisterCart OrderProducts=Order.OrderProducts
+                        OnRemoveProduct="OnRemoveProductHandler" 
+                        OnOpenProductDetails="OnOpenProductDetailsHandler" />
+                } 
+                else {
+                    <p>Search for a product.</p>
+                }
+            </div>
+            <div class="register-product-detail">
+                @if (currentOrderProduct != null) {
+                    <EditForm EditContext=editContext>
+                        <RegisterProductDetail OrderProduct=currentOrderProduct 
+                        OnRemoveProduct="OnRemoveProductHandler"
+                        OnCloseProductDetail="OnCloseProductDetailHandler" />
+                        <DataAnnotationsValidator />
+                    </EditForm>    
+                }
+                else {
+                    <p>Click a product to open details.</p>
+                }
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="register-cart-customer">
+                <p>customer info here</p>
+            </div>
+            <div class="register-cart-order-totals">
+                <p>order totals here</p>
+            </div>
+            <div class="register-cart-controls">
+                <p>cart controls here</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string? searchValue; 
+    private string? searchField;
+    private List<Product> Products = new List<Product>();
+    private List<Product> ProductsInOrder = new List<Product>();    
+    private Order Order => OrderState.Order; 
+    private OrderProduct currentOrderProduct;
+    private EditContext editContext;
+    bool isError = false; 
+
+    protected override async Task OnInitializedAsync() {
+        ProductsInOrder = Order.OrderProducts.Select(op => op.Product).ToList(); 
+    }
+
+    async Task FilterProducts() {
+        if (string.IsNullOrWhiteSpace(searchField)) {
+            searchField = "Any";
+        }
+
+        if (string.IsNullOrWhiteSpace(searchValue)) {
+            Products = await HttpClient.GetFromJsonAsync<List<Product>>(NavigationManager.BaseUri + "api/products");
+            return;
+        }
+
+        Products = await HttpClient.GetFromJsonAsync<List<Product>>(NavigationManager.BaseUri + $"api/products/results?searchField={searchField}&searchValue={searchValue}");
+    
+        if (Products.Count() == 1) {
+            OrderState.SelectProduct(Products.FirstOrDefault());
+            ProductsInOrder = Order.OrderProducts.Select(op => op.Product).ToList();
+            StateHasChanged();
+        }
+    }
+
+    public void OnOpenProductDetailsHandler(OrderProduct orderProduct) {
+        currentOrderProduct = orderProduct;
+        
+        editContext = new(currentOrderProduct);
+        editContext.OnFieldChanged += HandleFieldChanged;
+        
+        StateHasChanged();
+    }
+
+    public void OnCloseProductDetailHandler() {
+        currentOrderProduct = null;
+
+        StateHasChanged();
+    }
+
+    public void OnSelectProductHandler(Product product) {
+        OrderState.SelectProduct(product);
+        ProductsInOrder = Order.OrderProducts.Select(op => op.Product).ToList();
+        Products.Clear();
+        StateHasChanged();
+    }
+
+    public void OnRemoveProductHandler(int productId) {
+        OrderState.RemoveProduct(productId);
+        ProductsInOrder = Order.OrderProducts.Select(op => op.Product).ToList();
+        StateHasChanged();
+    }
+
+    private void HandleFieldChanged(object sender, FieldChangedEventArgs e) {
+        isError = !editContext.Validate();
+        StateHasChanged();
+    }
+
+    public void Dispose() {
+        editContext.OnFieldChanged -= HandleFieldChanged;
+    }
+}

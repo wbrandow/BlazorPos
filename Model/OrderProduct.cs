@@ -19,11 +19,19 @@ namespace BlazorPos {
         public Order Order { get; set; }
 
         public int ProductId { get; set; }
+
         public Product Product { get; set; }
+
         public int QtyOnOrder { get; set; }
 
+        public decimal OrderProductPrice { get; set; }
+
+        public decimal LineDiscount { get; set; }
+
+        public bool Tax { get; set; } = true;
+
         public decimal GetLinePrice() {
-            return Product.Price * QtyOnOrder;
+            return OrderProductPrice * QtyOnOrder;
         }
     }
 }

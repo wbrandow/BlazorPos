@@ -1,0 +1,60 @@
+<div>
+    @if (OrderProducts != null && OrderProducts.Any()) {
+        <table class="table table-hover register-cart-table">
+            <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">Brand</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Line Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <Virtualize Items="@OrderProducts" Context="orderProduct">
+                    <tr aria-label="View product details for @orderProduct.Product.Brand - @orderProduct.Product.Description"
+                        role="button" tabindex="0" 
+                        @onclick="() => OpenProductDetails(orderProduct)" @onkeydown="e => HandleKeyDown(e, orderProduct)">
+                        <td>
+                            <div class="register-remove-button">
+                                <button type="button" class="oi oi-trash btn-danger" aria-label="Remove Item"
+                                @onclick="@(() => RemoveProduct(orderProduct.ProductId))"
+                                @onclick:preventDefault @onclick:stopPropagation
+                                @onkeydown:stopPropagation></button>
+                            </div>
+                        </td>
+                        <td>@orderProduct.Product.Brand</td>
+                        <td>@orderProduct.Product.Description</td>
+                        <td>@orderProduct.QtyOnOrder</td>
+                        <td>$@orderProduct.OrderProductPrice.ToString("0.00")</td>
+                        <td>$@orderProduct.GetLinePrice().ToString("0.00")</td>
+                    </tr>
+                </Virtualize>
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    [Parameter] public List<OrderProduct> OrderProducts { get; set; }
+
+    [Parameter] public EventCallback<OrderProduct> OnOpenProductDetails { get; set; }    
+
+    [Parameter] public EventCallback<int> OnRemoveProduct { get; set; }
+
+    public async Task OpenProductDetails(OrderProduct orderProduct) {
+        await OnOpenProductDetails.InvokeAsync(orderProduct);
+    }
+
+    public async Task RemoveProduct(int productId) {
+        await OnRemoveProduct.InvokeAsync(productId);
+    }  
+
+    private void HandleKeyDown(KeyboardEventArgs e, OrderProduct orderProduct) {
+        if (e.Key == "Enter") {
+            // Trigger the action when Enter or Space is pressed
+            OpenProductDetails(orderProduct);
+        }
+    }  
+}
