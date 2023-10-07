@@ -67,7 +67,7 @@
                 <p>customer info here</p>
             </div>
             <div class="register-cart-order-totals">
-                <p>order totals here</p>
+                <RegisterOrderTotals Order=Order />
             </div>
             <div class="register-cart-controls">
                 <p>cart controls here</p>
@@ -134,6 +134,8 @@
     public void OnRemoveProductHandler(int productId) {
         OrderState.RemoveProduct(productId);
         ProductsInOrder = Order.OrderProducts.Select(op => op.Product).ToList();
+        currentOrderProduct = null;
+        Console.WriteLine("Called Remove");
         StateHasChanged();
     }
 

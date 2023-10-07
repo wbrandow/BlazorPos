@@ -1,0 +1,25 @@
+<div>
+    <table class="table register-order-totals-table">
+        <tr>
+            <th scope="row">Units</th>
+            <td>@Order.OrderProducts.Sum(op => op.QtyOnOrder)</td>
+        </tr>
+        <tr>
+            <th scope="row">Subtotal</th>
+            <td>$@Order.GetTotalPrice().ToString("0.00")</td>
+        </tr>
+        <tr>
+            <th scope="row">Tax</th>
+            <td>Calculate tax here</td>
+        </tr>
+        <tr>
+            <th scope="row">Total</th>
+            <td>Calculate total here</td>
+        </tr>
+        
+    </table>
+</div>
+
+@code {
+    [Parameter] public Order Order { get; set; }
+}

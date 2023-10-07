@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
+using System.ComponentModel.DataAnnotations;
 
 
 namespace BlazorPos {
@@ -26,12 +27,14 @@ namespace BlazorPos {
 
         public decimal OrderProductPrice { get; set; }
 
-        public decimal LineDiscount { get; set; }
+        [Range(1, 100, ErrorMessage = "Discount must be 0 to 100.")]
+        public decimal LineDiscount { get; set; } = 0;
 
         public bool Tax { get; set; } = true;
 
         public decimal GetLinePrice() {
-            return OrderProductPrice * QtyOnOrder;
+            decimal discountedPrice = OrderProductPrice - (OrderProductPrice * (LineDiscount / 100));
+            return discountedPrice * QtyOnOrder;
         }
     }
 }

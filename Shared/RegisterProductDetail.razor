@@ -22,7 +22,7 @@
                 <!-- FIXME: Implement discounts -->
                 <td>
                     <label>Discount:</label>
-                    <InputNumber @bind-Value="OrderProduct.LineDiscount"/>
+                    <InputNumber @bind-Value="OrderProduct.LineDiscount"/>%
                     <ValidationMessage For="@(() => OrderProduct.LineDiscount)" />
                 </td>
 
@@ -38,7 +38,7 @@
 
             <tr>
                 <td>
-                    <button class="btn btn-danger" aria-label="Remove product from order"
+                    <button type="button" class="btn btn-danger" aria-label="Remove product from order"
                         @onclick="@(() => RemoveProduct(OrderProduct.ProductId))">
                         Remove
                     </button>
@@ -46,7 +46,7 @@
                 <td></td>
                 <td></td>
                 <td>
-                    <button class="btn btn-primary" aria-label="Close product detail"
+                    <button type="button" class="btn btn-primary" aria-label="Close product detail"
                         @onclick="@(() => CloseProductDetail())">
                         Done
                     </button>
