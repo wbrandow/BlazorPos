@@ -15,6 +15,30 @@ namespace BlazorPos {
 
         public List<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();
 
+        public decimal GetTotalPriceBeforeDiscount() {
+            decimal price = 0;
+            decimal linePrice;
+
+            foreach (var orderProduct in OrderProducts) {
+                linePrice = orderProduct.GetLinePriceBeforeDiscount();
+                price += linePrice;
+            }
+
+            return price;
+        }
+
+        public decimal GetTotalDiscount() {
+            decimal totalDiscount = 0;
+            decimal lineDiscount;
+
+            foreach (var orderProduct in OrderProducts) {
+                lineDiscount = orderProduct.GetLineDiscount();
+                totalDiscount += lineDiscount;
+            }
+
+            return totalDiscount;
+        }
+
         public decimal GetTotalPrice() {
             decimal totalPrice = 0;
             decimal linePrice;

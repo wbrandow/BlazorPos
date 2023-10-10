@@ -70,7 +70,9 @@
                 <RegisterOrderTotals Order=Order />
             </div>
             <div class="register-cart-controls">
-                <p>cart controls here</p>
+                <button type="button" class="btn btn-primary payments-button" aria-label="Go to payments" @onclick="@(() => OpenPayments())">
+                    Payment
+                </button>
             </div>
         </div>
     </div>
@@ -139,12 +141,18 @@
         StateHasChanged();
     }
 
+    public void OpenPayments() {
+        NavigationManager.NavigateTo("/checkout");
+    }
+
     private void HandleFieldChanged(object sender, FieldChangedEventArgs e) {
         isError = !editContext.Validate();
         StateHasChanged();
     }
 
     public void Dispose() {
-        editContext.OnFieldChanged -= HandleFieldChanged;
+        if (editContext != null) {
+            editContext.OnFieldChanged -= HandleFieldChanged;
+        }
     }
 }

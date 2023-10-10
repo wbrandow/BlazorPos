@@ -34,12 +34,19 @@
     }   
 
     <div class="checkout-total-price">
-        <p>
+        <div>Units: @Order.OrderProducts.Sum(op => op.QtyOnOrder)</div>
+        <div>Subtotal: $@Order.GetTotalPriceBeforeDiscount().ToString("0.00")</div>
+        @if (Order.GetTotalDiscount() > 0) {
+            <div>Discount: <span style="color:red;">$@Order.GetTotalDiscount().ToString("0.00")</span></div>
+            <div>Discounted Subtotal: $@Order.GetTotalPrice().ToString("0.00")</div>           
+        }
+        <div>Tax: $@Order.GetTotalTax().ToString("0.00")</div>
+        <div>
             <strong>
                 Total price:
-                $@Order.GetTotalPrice().ToString("0.00")
+                $@Order.GetTotalPriceWithTax().ToString("0.00")
             </strong>
-        </p>
+        </div>
     </div>
 
     <div class="checkout-buttons row">
@@ -66,7 +73,7 @@
     } 
 
     private void Back() {
-        NavigationManager.NavigateTo("/");
+        NavigationManager.NavigateTo("/cashregister");
     }
 
     async Task PlaceOrder() {

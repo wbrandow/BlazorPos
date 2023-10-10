@@ -27,8 +27,11 @@ public class OrderController : Controller {
     public async Task<ActionResult<List<Order>>> GetOrders(string username) {
         var orders = await _db.Orders
             .Where(o => o.CreatedBy == username)
+            .OrderByDescending(o => o.CreatedTime)
             .Include(o => o.OrderProducts)
                 .ThenInclude(op => op.Product)
+                    .ThenInclude(p => p.TaxClass)
+                        .ThenInclude(tc => tc.TaxRates)
             .ToListAsync();
 
         return orders;    

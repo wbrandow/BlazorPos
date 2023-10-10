@@ -12,7 +12,7 @@
                 </tr>
             </thead>
             <tbody>
-                <Virtualize Items="@OrderProducts" Context="orderProduct">
+                @foreach (var orderProduct in OrderProducts) {
                     <tr aria-label="View product details for @orderProduct.Product.Brand - @orderProduct.Product.Description"
                         role="button" tabindex="0" 
                         @onclick="() => OpenProductDetails(orderProduct)" @onkeydown="e => HandleKeyDown(e, orderProduct)">
@@ -30,7 +30,7 @@
                         <td>$@orderProduct.OrderProductPrice.ToString("0.00")</td>
                         <td>$@orderProduct.GetLinePrice().ToString("0.00")</td>
                     </tr>
-                </Virtualize>
+                }
             </tbody>
         </table>
     }
