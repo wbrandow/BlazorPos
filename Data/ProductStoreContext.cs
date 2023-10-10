@@ -11,6 +11,10 @@ public class ProductStoreContext : DbContext {
 
     public DbSet<OrderProduct> OrderProducts { get; set; }
 
+    public DbSet<TaxRate> TaxRates { get; set; }
+
+    public DbSet<TaxClass> TaxClasses { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         base.OnModelCreating(modelBuilder);
 
@@ -23,6 +27,16 @@ public class ProductStoreContext : DbContext {
             .HasOne(op => op.Product)
             .WithMany()
             .HasForeignKey(op => op.ProductId);
+
+        modelBuilder.Entity<Product>()
+            .HasOne(p => p.TaxClass)
+            .WithMany()
+            .HasForeignKey(p => p.TaxClassId);
+
+        modelBuilder.Entity<TaxClass>()
+            .HasMany(tc => tc.TaxRates)
+            .WithMany()
+            .UsingEntity(junction => junction.ToTable("TaxClassTaxRate"));        
 
     }
 }

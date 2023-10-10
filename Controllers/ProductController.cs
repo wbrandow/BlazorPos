@@ -99,6 +99,8 @@ public class ProductController : Controller {
         existingProduct.MSRP = updatedProduct.MSRP;
         existingProduct.OnlinePrice = updatedProduct.OnlinePrice;
         existingProduct.DefaultCost = updatedProduct.DefaultCost;
+        existingProduct.TaxClassId = updatedProduct.TaxClassId;
+        existingProduct.TaxClass = await _db.TaxClasses.Where(tc => tc.Id == updatedProduct.TaxClassId).FirstOrDefaultAsync();
 
         try {
             _db.Update(existingProduct);

@@ -38,5 +38,9 @@ namespace BlazorPos {
 
         [RegularExpression(@"^\d+(\.\d{1,2})?$?", ErrorMessage = "Please enter a valid price.")]
         public decimal DefaultCost { get; set; }
+
+        public int TaxClassId { get; set; } = 1;
+
+        public TaxClass TaxClass { get; set; }
     } 
 }

@@ -1,0 +1,21 @@
+@page "/settings"
+@inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
+
+<div class="main">
+    <select class="custom-select" id="taxClassSelector" aria-label="Select Tax Class">
+        @foreach (var taxClass in TaxClasses) {
+            <option>@taxClass.TaxClassName</option>
+        }
+    </select>
+</div>
+
+@code {
+    public List<TaxClass> TaxClasses = new List<TaxClass>();
+    public List<TaxRate> TaxRates = new List<TaxRate>();
+
+    protected override async Task OnInitializedAsync() {
+        TaxClasses = await HttpClient.GetFromJsonAsync<List<TaxClass>>(NavigationManager.BaseUri + "api/settings/taxclasses");
+        TaxRates = await HttpClient.GetFromJsonAsync<List<TaxRate>>(NavigationManager.BaseUri + "api/settings/taxrates");
+    }     
+}

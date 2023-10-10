@@ -34,6 +34,7 @@
 
     async Task CreateProduct() {
         try {
+            Console.WriteLine("TaxClassId = " + product.TaxClassId);
             var response = await HttpClient.PostAsJsonAsync(NavigationManager.BaseUri + "api/products", product);
             var newProductId = await response.Content.ReadFromJsonAsync<int>();
             NavigationManager.NavigateTo("/"); 

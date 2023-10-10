@@ -1,3 +1,6 @@
+@inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
+
     <div class="form-field">
         <label>UPC:</label>
         <div>
@@ -78,7 +81,24 @@
         </div>
     </div>
 
+    <div class="form-field">
+        <label>Tax Class:</label>
+        <div>
+            <select class="custom-select" id="taxClassSelector" @bind="Product.TaxClassId" aria-label="Select Tax Class">
+                @foreach (var taxClass in TaxClasses) {
+                    <option value="@taxClass.Id">@taxClass.TaxClassName</option>
+                }
+            </select>
+        </div>
+    </div>
+
 
 @code {
     [Parameter] public Product Product { get; set; }  
+
+    public List<TaxClass> TaxClasses = new List<TaxClass>();
+
+    protected override async Task OnInitializedAsync() {
+        TaxClasses = await HttpClient.GetFromJsonAsync<List<TaxClass>>(NavigationManager.BaseUri + "api/settings/taxclasses");
+    } 
 }
