@@ -16,7 +16,10 @@ public class ProductController : Controller {
 
     [HttpGet]
     public async Task<ActionResult<List<Product>>> GetProducts() {
-        return (await _db.Products.ToListAsync()).OrderByDescending(p => p.Price).ToList();
+        return await _db.Products
+            .Include(p => p.TaxClass)
+                .ThenInclude(tc => tc.TaxRates)
+            .ToListAsync();
     }
     
     [HttpGet("{ProductId}")]
@@ -100,7 +103,7 @@ public class ProductController : Controller {
         existingProduct.OnlinePrice = updatedProduct.OnlinePrice;
         existingProduct.DefaultCost = updatedProduct.DefaultCost;
         existingProduct.TaxClassId = updatedProduct.TaxClassId;
-        existingProduct.TaxClass = await _db.TaxClasses.Where(tc => tc.Id == updatedProduct.TaxClassId).FirstOrDefaultAsync();
+        existingProduct.TaxClass = await _db.TaxClasses.Include(tc => tc.TaxRates).Where(tc => tc.Id == updatedProduct.TaxClassId).FirstOrDefaultAsync();
 
         try {
             _db.Update(existingProduct);

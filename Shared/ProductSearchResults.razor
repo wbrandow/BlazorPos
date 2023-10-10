@@ -16,7 +16,7 @@
                             @onclick="() => OpenProductDetails(product)" @onkeydown="e => HandleKeyDown(e, product)">
                            <td>@product.Brand</td>
                             <td>@product.Description</td>
-                            <td>@product.Price</td>
+                            <td>$@product.Price.ToString("0.00")</td>
                             <td>
                                 <div class="select-button">
                                     <button type="button" class="btn-primary" aria-label="Add @product.Description to cart"

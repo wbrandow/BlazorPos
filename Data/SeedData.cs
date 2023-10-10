@@ -76,7 +76,7 @@ public static class SeedData {
                 UPC = "323456789876",
                 EAN = "0323456789876",
                 SKU = "0323456789876",
-                Description = "Example Item 3",
+                Description = "Example Food Item 3",
                 Brand = "Example Brand",
                 Vendor = "Example Vendor",
                 Price = 29.99m,

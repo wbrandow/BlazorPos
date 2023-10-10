@@ -26,5 +26,28 @@ namespace BlazorPos {
 
             return totalPrice;
         }
+
+        public decimal GetTotalTax() {
+            decimal totalTax = 0;
+            
+            foreach (var orderProduct in OrderProducts) {
+
+                if (orderProduct.Tax == true) {
+                    if (orderProduct.Product != null && orderProduct.Product.TaxClass != null) {
+                        foreach (var taxRate in orderProduct.Product.TaxClass.TaxRates) {
+                            if (taxRate != null) {
+                                totalTax += orderProduct.GetLinePrice() * (taxRate.Rate / 100);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return totalTax;
+        }
+
+        public decimal GetTotalPriceWithTax() {
+            return GetTotalPrice() + GetTotalTax();
+        }
     }
 }
