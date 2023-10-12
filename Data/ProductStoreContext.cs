@@ -44,6 +44,5 @@ public class ProductStoreContext : DbContext {
             .HasOne(item => item.Product)
             .WithMany(p => p.InventoryItems)
             .HasForeignKey(item => item.ProductId);       
-
     }
 }

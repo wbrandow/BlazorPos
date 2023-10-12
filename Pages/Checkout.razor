@@ -22,12 +22,12 @@
             <div class="checkout-product-price col-sm-3">
                 <div class="d-flex justify-content-between align-items-center">
                     <span>@orderProduct.QtyOnOrder X</span>
-                    <span>$@orderProduct.Product.Price.ToString("0.00")</span>
+                    <span>$@orderProduct.OrderProductPrice.ToString("0.00")</span>
                 </div>
             </div>
             <div class="checkout-line-price col-sm-1">
                 <strong>
-                    $@orderProduct.GetLinePrice().ToString("0.00")
+                    $@orderProduct.GetLinePriceBeforeDiscount().ToString("0.00")
                 </strong>
             </div>
         </div>
@@ -81,7 +81,30 @@
         Console.WriteLine("#In Checkout.razor#PlaceOrder():  Order Id = " + Order.OrderId);
         string username = authStateProvider.GetAuthenticationStateAsync().Result.User.Identity.Name;
         Order.CreatedBy = username;
+        
+        foreach (var orderProduct in Order.OrderProducts){
+            int qty = orderProduct.QtyOnOrder;
+            while (qty > 0) {
+                for (int i = 0; i < orderProduct.Product.InventoryItems.Count(); i++) {
+                    Console.WriteLine("QUANTITY ON HAND BEFORE: " + orderProduct.Product.InventoryItems[i].QtyOnHand);
+                    if (qty >= orderProduct.Product.InventoryItems[i].QtyOnHand) {
+                        qty -= orderProduct.Product.InventoryItems[i].QtyOnHand;
+                        // FIXME: Add InventoryItem to sale
+                        orderProduct.Product.InventoryItems.Remove(orderProduct.Product.InventoryItems[i]);
+                    }
+                    else if (qty < orderProduct.Product.InventoryItems[i].QtyOnHand) {
+                        orderProduct.Product.InventoryItems[i].QtyOnHand -= qty;
+                        qty = 0;
+                    }
+                    if (qty == 0) {
+                        break;
+                    }
+                }
+            }
+        }
+
         var response = await HttpClient.PostAsJsonAsync(NavigationManager.BaseUri + "api/orders", Order);
+
         OrderState.ResetOrder();
         NavigationManager.NavigateTo($"/orders");    
     }

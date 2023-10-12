@@ -38,7 +38,7 @@ namespace BlazorPos {
         }
 
         public decimal GetLineDiscount() {
-            decimal discount = OrderProductPrice * (LineDiscount / 100);
+            decimal discount = QtyOnOrder * (OrderProductPrice * (LineDiscount / 100));
             return discount;
         }
 

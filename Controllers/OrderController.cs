@@ -41,11 +41,29 @@ public class OrderController : Controller {
         newOrder.CreatedTime = DateTime.Now;
         newOrder.CreatedBy = Order.CreatedBy;
 
+        var productIds = Order.OrderProducts.Select(op => op.ProductId).ToList();
+
+        var products = await _db.Products
+            .Where(p => productIds.Contains(p.Id))
+            .Include(p => p.InventoryItems)
+            .ToListAsync();
+
         foreach (var orderProduct in Order.OrderProducts) {
-            newOrder.OrderProducts.Add(orderProduct);
-            orderProduct.Order = newOrder;
-            Console.WriteLine(orderProduct.Product.Description);
-            Console.WriteLine("Product Id: " + orderProduct.ProductId);
+
+            var product = products.FirstOrDefault(p => p.Id == orderProduct.ProductId);
+            
+            product.InventoryItems = orderProduct.Product.InventoryItems;
+
+            var newOrderProduct = new OrderProduct() {
+                OrderId = orderProduct.OrderId,
+                ProductId = orderProduct.ProductId,
+                QtyOnOrder = orderProduct.QtyOnOrder,
+                OrderProductPrice = orderProduct.OrderProductPrice,
+                Tax = orderProduct.Tax,
+                LineDiscount = orderProduct.LineDiscount
+            };
+
+            newOrder.OrderProducts.Add(newOrderProduct);
         }
 
         _db.Orders.Attach(newOrder);
