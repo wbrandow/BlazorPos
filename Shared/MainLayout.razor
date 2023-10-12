@@ -1,6 +1,10 @@
 ﻿@inherits LayoutComponentBase
+@using Blazored.Toast.Services
+@inject IToastService toastService
 
 <PageTitle>BlazorPos</PageTitle>
+
+<BlazoredToasts />
 
 <div class="page">
     <div class="sidebar">

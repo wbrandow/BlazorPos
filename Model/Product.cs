@@ -44,5 +44,7 @@ namespace BlazorPos {
 
         [JsonIgnore]
         public TaxClass TaxClass { get; set; }
+
+        public List<InventoryItem> InventoryItems { get; set; } = new List<InventoryItem>();
     } 
 }

@@ -56,6 +56,14 @@
                             <div class="price">
                                 <p>$@product.Price.ToString("0.00")</p>
                             </div>
+                            <div class="qtyOnHand">
+                                @if(product.InventoryItems == null || product.InventoryItems.Count == 0) {
+                                    <p>0</p>
+                                }
+                                else {
+                                    <p>@product.InventoryItems.Sum(item => item.QtyOnHand)</p>
+                                }
+                            </div>
                         </div> 
                         <div class="select-button">
                             <button type="button" class="btn-primary" aria-label="Add @product.Description to cart"

@@ -77,6 +77,7 @@
     }
 
     async Task PlaceOrder() {
+        // FIXME: Remove InventoryItems
         Console.WriteLine("#In Checkout.razor#PlaceOrder():  Order Id = " + Order.OrderId);
         string username = authStateProvider.GetAuthenticationStateAsync().Result.User.Identity.Name;
         Order.CreatedBy = username;

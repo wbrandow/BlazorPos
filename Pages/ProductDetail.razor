@@ -3,37 +3,84 @@
 @inject HttpClient HttpClient
 @implements IDisposable
 
+@inject AuthenticationStateProvider authStateProvider
+
 
 <div class="main">
-    @if (invalidProduct) {
-        <h2>Product not found</h2>
-        <p>This product does not seem to exist.</p>
-    }
-    else if (product == null) {
-        <h2>
-            <text>Loading...</text>
-        </h2>
-    }
-    else {
-        <EditForm EditContext=editContext OnValidSubmit=UpdateProduct>
-            <ProductEditor Product=product />
+    <div class="row">
+        <div class="col-sm-6">
+            @if (invalidProduct) {
+                <h2>Product not found</h2>
+                <p>This product does not seem to exist.</p>
+            }
+            else if (product == null) {
+                <h2>
+                    <text>Loading...</text>
+                </h2>
+            }
+            else {
+                <EditForm EditContext=editContext OnValidSubmit=UpdateProduct>
+                    <ProductEditor Product=product />
 
-            <div class="edit-product-buttons">
-                <button class="update-button btn btn-primary" type="Submit" disabled=@isError>
-                    Update
-                </button>
-                <button type="button" class="delete-button btn btn-danger" @onclick="@(async () => await DeleteProduct())">
-                    Delete
-                </button>
-            </div>
-            <DataAnnotationsValidator />
-        </EditForm>
-    }
+                    <div class="form-field">
+                        <label>Add Quantity:</label>
+                        <div>
+                            <InputNumber @bind-Value="QtyToAdd" />
+                        </div>
+                    </div>
+
+                    <div class="edit-product-buttons">
+                        <button class="update-button btn btn-primary" type="Submit" disabled=@isError>
+                            Update
+                        </button>
+                        <button type="button" class="delete-button btn btn-danger" @onclick="@(async () => await DeleteProduct())">
+                            Delete
+                        </button>
+                    </div>
+                    <DataAnnotationsValidator />
+                </EditForm>
+            }
+        </div>
+        <div class="col-sm-6">
+            @if (product == null) {
+                <p>Loading...</p>
+            }
+            else {
+                <table class="table table-hover">
+                    <thead>
+                        <th scope="col">Qty</th>
+                        <th scope="col">Entered Inventory</th>
+                        <th scope="col">Entered By</th>
+                        <th scope="col">PO Number</th>
+                    </thead>
+                    @foreach (var item in product.InventoryItems) {
+                        <tbody>
+                            <tr>
+                                <td>@item.QtyOnHand</td>
+                                <td>@item.AquisitionDate</td>
+                                <td>@item.AddedBy</td>
+                                @if (item.PurchaseOrderId == null) {
+                                    <td></td>
+                                }
+                                else {
+                                    <td>@item.PurchaseOrderId</td>
+                                }
+                            </tr>
+                        </tbody>
+                    }
+                </table>
+                <h4>Total On Hand: @product.InventoryItems.Sum(item => item.QtyOnHand)</h4>
+            }
+        </div>
+    </div>
 </div>
 
 @code {
     [Parameter]
     public int ProductId { get; set; }
+
+    public int QtyToAdd;
+    public InventoryItem InventoryItem;
 
     Product product;
     bool invalidProduct = false;
@@ -45,14 +92,14 @@
         try {
             product = await HttpClient.GetFromJsonAsync<Product>(
                 $"{NavigationManager.BaseUri}api/products/{ProductId}");
+
+            editContext = new(product);
+            editContext.OnFieldChanged += HandleFieldChanged;    
         }
         catch (Exception ex) {
             invalidProduct = true;
             Console.Error.WriteLine(ex);
         }
-
-        editContext = new(product);
-        editContext.OnFieldChanged += HandleFieldChanged;
     }
 
     private void HandleFieldChanged(object sender, FieldChangedEventArgs e) {
@@ -65,7 +112,22 @@
     }
 
     async Task UpdateProduct() {
-        try{
+        string username = authStateProvider.GetAuthenticationStateAsync().Result.User.Identity.Name;
+
+        if (QtyToAdd > 0) {
+            InventoryItem = new InventoryItem() {
+                ProductId = product.Id,
+                Product = product,
+                QtyOnHand = QtyToAdd,
+                UnitCost = product.DefaultCost,
+                AquisitionDate = DateTime.Now,
+                AddedBy = username
+            };
+
+            product.InventoryItems.Add(InventoryItem);
+        }
+
+        try {
             var response = await HttpClient.PutAsJsonAsync(
                 $"{NavigationManager.BaseUri}api/products/{ProductId}", product);
 

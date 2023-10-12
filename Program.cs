@@ -4,6 +4,8 @@ using BlazorPos.Data;
 using BlazorPos.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Blazored.Toast;
+
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("AuthDbContextConnection") ?? throw new InvalidOperationException("Connection string 'AuthDbContextConnection' not found.");
@@ -13,6 +15,7 @@ builder.Services.AddDbContext<AuthDbContext>(options => options.UseSqlite(connec
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<AuthDbContext>();
 
 // Add services to the container.
+builder.Services.AddBlazoredToast();
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddHttpClient();
@@ -20,6 +23,7 @@ builder.Services.AddSqlite<ProductStoreContext>("Data Source=product.db");
 builder.Services.AddScoped<OrderState>();
 builder.Services.AddOptions();
 builder.Services.AddAuthorizationCore();
+
 
 var app = builder.Build();
 

@@ -17,8 +17,7 @@ public class ProductController : Controller {
     [HttpGet]
     public async Task<ActionResult<List<Product>>> GetProducts() {
         return await _db.Products
-            .Include(p => p.TaxClass)
-                .ThenInclude(tc => tc.TaxRates)
+            .Include(p => p.InventoryItems)
             .ToListAsync();
     }
     
@@ -26,6 +25,7 @@ public class ProductController : Controller {
     public async Task<ActionResult<Product>> GetProduct(int ProductId) {
         var product = await _db.Products
             .Where(p => p.Id == ProductId)
+            .Include(p => p.InventoryItems)
             .SingleOrDefaultAsync();
 
         if (product == null) {
@@ -43,16 +43,19 @@ public class ProductController : Controller {
                 case "Description":
                     return await _db.Products
                         .Where(p => p.Description.ToLower().Contains(searchValue))
+                        .Include(p => p.InventoryItems)
                         .ToListAsync(); 
                 
                 case "Brand":
                     return await _db.Products
                         .Where(p => p.Brand.ToLower().Contains(searchValue))
+                        .Include(p => p.InventoryItems)
                         .ToListAsync();
                     
                 case "Vendor":
                     return await _db.Products
                         .Where(p => p.Vendor.ToLower().Contains(searchValue))
+                        .Include(p => p.InventoryItems)
                         .ToListAsync();  
 
                 case "UPC":
@@ -63,11 +66,13 @@ public class ProductController : Controller {
                 case "EAN":
                     return await _db.Products
                         .Where(p => p.EAN.ToLower().Contains(searchValue))
+                        .Include(p => p.InventoryItems)
                         .ToListAsync(); 
 
                 case "SKU":
                     return await _db.Products
                         .Where(p => p.SKU.ToLower().Contains(searchValue))
+                        .Include(p => p.InventoryItems)
                         .ToListAsync();               
 
                 default:
@@ -78,6 +83,7 @@ public class ProductController : Controller {
                             || p.UPC.ToLower().Contains(searchValue)
                             || p.EAN.ToLower().Contains(searchValue)
                             || p.SKU.ToLower().Contains(searchValue))
+                        .Include(p => p.InventoryItems)    
                         .ToListAsync();
             }
         }    
@@ -86,6 +92,7 @@ public class ProductController : Controller {
     public async Task<ActionResult<Product>> UpdateProduct(int ProductId, Product updatedProduct) {
         var existingProduct = await _db.Products
             .Where(p => p.Id == ProductId)
+            .Include(p => p.InventoryItems)
             .SingleOrDefaultAsync();
 
         if (existingProduct == null) {
@@ -104,6 +111,7 @@ public class ProductController : Controller {
         existingProduct.DefaultCost = updatedProduct.DefaultCost;
         existingProduct.TaxClassId = updatedProduct.TaxClassId;
         existingProduct.TaxClass = await _db.TaxClasses.Include(tc => tc.TaxRates).Where(tc => tc.Id == updatedProduct.TaxClassId).FirstOrDefaultAsync();
+        existingProduct.InventoryItems = updatedProduct.InventoryItems;
 
         try {
             _db.Update(existingProduct);

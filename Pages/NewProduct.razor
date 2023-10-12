@@ -3,8 +3,17 @@
 @inject HttpClient HttpClient
 @implements IDisposable
 
+@inject AuthenticationStateProvider authStateProvider
+
 <EditForm EditContext=editContext OnValidSubmit=CreateProduct>
     <ProductEditor Product=product />
+
+    <div class="form-field">
+        <label>Add Quantity:</label>
+        <div>
+            <InputNumber @bind-Value="QtyToAdd" />
+        </div>
+    </div>
 
     <button class="checkout-button btn btn-warning" type="Submit" disabled=@isError>
         Create Product
@@ -14,6 +23,9 @@
 
 @code {
     Product product = new Product();
+    
+    public int QtyToAdd;
+    public InventoryItem InventoryItem;
 
     private EditContext editContext;
     bool isError = false;
@@ -33,6 +45,21 @@
     }
 
     async Task CreateProduct() {
+        string username = authStateProvider.GetAuthenticationStateAsync().Result.User.Identity.Name;
+
+        if (QtyToAdd > 0) {
+            InventoryItem = new InventoryItem() {
+                ProductId = product.Id,
+                Product = product,
+                QtyOnHand = QtyToAdd,
+                UnitCost = product.DefaultCost,
+                AquisitionDate = DateTime.Now,
+                AddedBy = username
+            };
+
+            product.InventoryItems.Add(InventoryItem);
+        }
+
         try {
             var response = await HttpClient.PostAsJsonAsync(NavigationManager.BaseUri + "api/products", product);
             var newProductId = await response.Content.ReadFromJsonAsync<int>();

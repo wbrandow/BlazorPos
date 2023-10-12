@@ -15,6 +15,8 @@ public class ProductStoreContext : DbContext {
 
     public DbSet<TaxClass> TaxClasses { get; set; }
 
+    public DbSet<InventoryItem> InventoryItems { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         base.OnModelCreating(modelBuilder);
 
@@ -36,7 +38,12 @@ public class ProductStoreContext : DbContext {
         modelBuilder.Entity<TaxClass>()
             .HasMany(tc => tc.TaxRates)
             .WithMany()
-            .UsingEntity(junction => junction.ToTable("TaxClassTaxRate"));        
+            .UsingEntity(junction => junction.ToTable("TaxClassTaxRate")); 
+
+        modelBuilder.Entity<InventoryItem>()
+            .HasOne(item => item.Product)
+            .WithMany(p => p.InventoryItems)
+            .HasForeignKey(item => item.ProductId);       
 
     }
 }

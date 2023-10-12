@@ -6,6 +6,9 @@
 @using BlazorPos.Services
 @inject OrderState OrderState
 
+@using Blazored.Toast.Services
+@inject IToastService toastService
+
 @implements IDisposable
 
 <div class="main">
@@ -88,6 +91,7 @@
     private OrderProduct currentOrderProduct;
     private EditContext editContext;
     bool isError = false; 
+    bool orderValid = true;
 
     protected override async Task OnInitializedAsync() {
         ProductsInOrder = Order.OrderProducts.Select(op => op.Product).ToList(); 
@@ -154,7 +158,17 @@
     }
 
     public void OpenPayments() {
-        NavigationManager.NavigateTo("/checkout");
+        orderValid = true;
+        foreach (var orderProduct in Order.OrderProducts) {
+            if (orderProduct.QtyOnOrder > orderProduct.Product.InventoryItems.Sum(item => item.QtyOnHand)) {
+                toastService.ShowError($"Not enough {orderProduct.Product.Description} on hand!");
+                orderValid = false;
+            }
+        }
+
+        if (orderValid) {
+            NavigationManager.NavigateTo("/checkout");
+        }
     }
 
     private void HandleFieldChanged(object sender, FieldChangedEventArgs e) {
