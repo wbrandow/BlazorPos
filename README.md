@@ -2,8 +2,12 @@
 POS system created using Blazor server to practice with C#, ASP.NET, Blazor, Bootstrap, and more.  
 
 Screenshots of the /cashregister page as of 10/12/2023
+
 <img width="1769" alt="2023-10-12_BlazorPos_CashRegister" src="https://github.com/wbrandow/BlazorPos/assets/31283921/2a4a278a-42b3-4298-b77f-02258406694b">
+Note. After searching product descriptions for "Example" 
+
 <img width="1680" alt="2023_10-12_BlazorPos_CashRegister2" src="https://github.com/wbrandow/BlazorPos/assets/31283921/92f58b7c-ed5a-4d54-9e59-4abbed88ece6">
+Note. After clicking a product to open details
 
 
 Screenshot of the home page as of 9/27/2023
