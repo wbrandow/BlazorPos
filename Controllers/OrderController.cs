@@ -30,8 +30,6 @@ public class OrderController : Controller {
             .OrderByDescending(o => o.CreatedTime)
             .Include(o => o.OrderProducts)
                 .ThenInclude(op => op.Product)
-                    .ThenInclude(p => p.TaxClass)
-                        .ThenInclude(tc => tc.TaxRates)
             .ToListAsync();
 
         return orders;    

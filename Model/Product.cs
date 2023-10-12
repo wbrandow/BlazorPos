@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace BlazorPos {
     /*
@@ -41,6 +42,7 @@ namespace BlazorPos {
 
         public int TaxClassId { get; set; } = 1;
 
+        [JsonIgnore]
         public TaxClass TaxClass { get; set; }
     } 
 }

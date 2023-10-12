@@ -82,7 +82,8 @@
     private string? searchValue; 
     private string? searchField;
     private List<Product> Products = new List<Product>();
-    private List<Product> ProductsInOrder = new List<Product>();    
+    private List<Product> ProductsInOrder = new List<Product>();  
+    private List<TaxClass> taxClasses = new List<TaxClass>();  
     private Order Order => OrderState.Order; 
     private OrderProduct currentOrderProduct;
     private EditContext editContext;
@@ -90,6 +91,9 @@
 
     protected override async Task OnInitializedAsync() {
         ProductsInOrder = Order.OrderProducts.Select(op => op.Product).ToList(); 
+        
+        taxClasses = await HttpClient.GetFromJsonAsync<List<TaxClass>>(
+            $"{NavigationManager.BaseUri}api/settings/taxclasses");
     }
 
     async Task FilterProducts() {
@@ -99,10 +103,18 @@
 
         if (string.IsNullOrWhiteSpace(searchValue)) {
             Products = await HttpClient.GetFromJsonAsync<List<Product>>(NavigationManager.BaseUri + "api/products");
-            return;
+        }
+        else{
+            Products = await HttpClient.GetFromJsonAsync<List<Product>>(NavigationManager.BaseUri + $"api/products/results?searchField={searchField}&searchValue={searchValue}");
         }
 
-        Products = await HttpClient.GetFromJsonAsync<List<Product>>(NavigationManager.BaseUri + $"api/products/results?searchField={searchField}&searchValue={searchValue}");
+        foreach (var product in Products) {
+            foreach (var taxClass in taxClasses) {
+                if (product.TaxClassId == taxClass.Id) {
+                    product.TaxClass = taxClass;
+                }
+            }
+        } 
     
         if (Products.Count() == 1) {
             OrderState.SelectProduct(Products.FirstOrDefault());

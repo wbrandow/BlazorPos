@@ -64,6 +64,9 @@ namespace BlazorPos {
                             }
                         }
                     }
+                    else {
+                        Console.WriteLine("TAX CLASS IS NULL!!!!!!!!!!");
+                    }
                 }
             }
 

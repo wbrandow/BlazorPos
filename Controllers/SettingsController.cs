@@ -16,7 +16,9 @@ public class SettingsController : Controller {
 
     [HttpGet("taxclasses")]
     public async Task<ActionResult<List<TaxClass>>> GetTaxClasses() {
-        return await _db.TaxClasses.ToListAsync();
+        return await _db.TaxClasses
+            .Include(tc => tc.TaxRates)
+            .ToListAsync();
     }
 
     [HttpGet("taxrates")]

@@ -53,6 +53,7 @@
 
 @code {
     List<Order> orders = new List<Order>();
+    List<TaxClass> taxClasses = new List<TaxClass>();
 
     private bool createdTimeDesc = true;    
 
@@ -61,6 +62,18 @@
 
         orders = await HttpClient.GetFromJsonAsync<List<Order>>(
             $"{NavigationManager.BaseUri}api/orders/{username}");
+        
+        taxClasses = await HttpClient.GetFromJsonAsync<List<TaxClass>>(
+            $"{NavigationManager.BaseUri}api/settings/taxclasses");
+
+        foreach (var order in orders) {
+            foreach (var orderProduct in order.OrderProducts) {
+                foreach (var taxClass in taxClasses) {
+                    if (orderProduct.Product.TaxClassId == taxClass.Id)
+                        orderProduct.Product.TaxClass = taxClass;
+                }
+            }
+        }    
     }
 
     private void CreatedTimeSort() {
