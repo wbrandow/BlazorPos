@@ -43,7 +43,7 @@
                 }
 
                 @if (ProductsInOrder != null && ProductsInOrder.Any()) {
-                    <RegisterCart OrderProducts=Order.OrderProducts
+                    <RegisterCart SaleLines=Sale.SaleLines
                         OnRemoveProduct="OnRemoveProductHandler" 
                         OnOpenProductDetails="OnOpenProductDetailsHandler" />
                 } 
@@ -52,9 +52,9 @@
                 }
             </div>
             <div class="register-product-detail">
-                @if (currentOrderProduct != null) {
+                @if (currentSaleLine != null) {
                     <EditForm EditContext=editContext>
-                        <RegisterProductDetail OrderProduct=currentOrderProduct 
+                        <RegisterProductDetail SaleLine=currentSaleLine 
                         OnRemoveProduct="OnRemoveProductHandler"
                         OnCloseProductDetail="OnCloseProductDetailHandler" />
                         <DataAnnotationsValidator />
@@ -70,7 +70,7 @@
                 <p>customer info here</p>
             </div>
             <div class="register-cart-order-totals">
-                <RegisterOrderTotals Order=Order />
+                <RegisterOrderTotals Sale=Sale />
             </div>
             <div class="register-cart-controls">
                 <button type="button" class="btn btn-primary payments-button" aria-label="Go to payments" @onclick="@(() => OpenPayments())">
@@ -86,18 +86,19 @@
     private string? searchField;
     private List<Product> Products = new List<Product>();
     private List<Product> ProductsInOrder = new List<Product>();  
-    private List<TaxClass> taxClasses = new List<TaxClass>();  
-    private Order Order => OrderState.Order; 
-    private OrderProduct currentOrderProduct;
+<!--    private List<TaxClass> taxClasses = new List<TaxClass>();  -->
+    private Sale Sale => OrderState.Sale; 
+    private SaleLine currentSaleLine;
     private EditContext editContext;
     bool isError = false; 
     bool orderValid = true;
 
     protected override async Task OnInitializedAsync() {
-        ProductsInOrder = Order.OrderProducts.Select(op => op.Product).ToList(); 
-        
+        ProductsInOrder = Sale.SaleLines.Select(line => line.Product).ToList(); 
+<!--        
         taxClasses = await HttpClient.GetFromJsonAsync<List<TaxClass>>(
             $"{NavigationManager.BaseUri}api/settings/taxclasses");
+-->            
     }
 
     async Task FilterProducts() {
@@ -111,7 +112,7 @@
         else{
             Products = await HttpClient.GetFromJsonAsync<List<Product>>(NavigationManager.BaseUri + $"api/products/results?searchField={searchField}&searchValue={searchValue}");
         }
-
+<!--
         foreach (var product in Products) {
             foreach (var taxClass in taxClasses) {
                 if (product.TaxClassId == taxClass.Id) {
@@ -119,49 +120,49 @@
                 }
             }
         } 
-    
+-->    
         if (Products.Count() == 1) {
             OrderState.SelectProduct(Products.FirstOrDefault());
-            ProductsInOrder = Order.OrderProducts.Select(op => op.Product).ToList();
+            ProductsInOrder = Sale.SaleLines.Select(line => line.Product).ToList();
             StateHasChanged();
         }
     }
 
-    public void OnOpenProductDetailsHandler(OrderProduct orderProduct) {
-        currentOrderProduct = orderProduct;
+    public void OnOpenProductDetailsHandler(SaleLine saleLine) {
+        currentSaleLine = saleLine;
         
-        editContext = new(currentOrderProduct);
+        editContext = new(currentSaleLine);
         editContext.OnFieldChanged += HandleFieldChanged;
         
         StateHasChanged();
     }
 
     public void OnCloseProductDetailHandler() {
-        currentOrderProduct = null;
+        currentSaleLine = null;
 
         StateHasChanged();
     }
 
     public void OnSelectProductHandler(Product product) {
         OrderState.SelectProduct(product);
-        ProductsInOrder = Order.OrderProducts.Select(op => op.Product).ToList();
+        ProductsInOrder = Sale.SaleLines.Select(line => line.Product).ToList();
         Products.Clear();
         StateHasChanged();
     }
 
     public void OnRemoveProductHandler(int productId) {
         OrderState.RemoveProduct(productId);
-        ProductsInOrder = Order.OrderProducts.Select(op => op.Product).ToList();
-        currentOrderProduct = null;
+        ProductsInOrder = Sale.SaleLines.Select(line => line.Product).ToList();
+        currentSaleLine = null;
         Console.WriteLine("Called Remove");
         StateHasChanged();
     }
 
     public void OpenPayments() {
         orderValid = true;
-        foreach (var orderProduct in Order.OrderProducts) {
-            if (orderProduct.QtyOnOrder > orderProduct.Product.InventoryItems.Sum(item => item.QtyOnHand)) {
-                toastService.ShowError($"Not enough {orderProduct.Product.Description} on hand!");
+        foreach (var line in Sale.SaleLines) {
+            if (line.Units > line.Product.InventoryItems.Sum(item => item.QtyOnHand)) {
+                toastService.ShowError($"Not enough {line.Product.Description} on hand!");
                 orderValid = false;
             }
         }

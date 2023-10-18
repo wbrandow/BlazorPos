@@ -14,61 +14,72 @@ public class OrderController : Controller {
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<Order>>> GetOrders() {
-        var orders = await _db.Orders
-            .Include(o => o.OrderProducts)
-                .ThenInclude(op => op.Product)
+    public async Task<ActionResult<List<Sale>>> GetOrders() {
+        var sales = await _db.Sales
+            .Include(s => s.SaleLines)
+                .ThenInclude(line => line.Product)
             .ToListAsync();
 
-        return orders;    
+        return sales;    
     }
 
     [HttpGet("{username}")]
-    public async Task<ActionResult<List<Order>>> GetOrders(string username) {
-        var orders = await _db.Orders
-            .Where(o => o.CreatedBy == username)
-            .OrderByDescending(o => o.CreatedTime)
-            .Include(o => o.OrderProducts)
-                .ThenInclude(op => op.Product)
+    public async Task<ActionResult<List<Sale>>> GetOrders(string username) {
+        var sales = await _db.Sales
+            .Where(s => s.Salesperson == username)
+            .OrderByDescending(s => s.TimeOfSale)
+            .Include(s => s.SaleLines)
+                .ThenInclude(line => line.Product)
             .ToListAsync();
 
-        return orders;    
+        return sales;    
+    }
+
+    [HttpGet("sales-by-product")]
+    public async Task<ActionResult<List<Sale>>> GetSalesByProductId(int productId) {
+        var sales = await _db.Sales
+            .Where(s => s.SaleLines.Any(line => line.ProductId == productId))
+            .Include(s => s.SaleLines)
+            .ToListAsync();
+
+        return sales;    
     }
 
     [HttpPost]
-    public async Task<ActionResult<int>> CreateOrder(Order Order) {
-        Order newOrder = new Order();
-        newOrder.CreatedTime = DateTime.Now;
-        newOrder.CreatedBy = Order.CreatedBy;
+    public async Task<ActionResult<int>> CreateOrder(Sale Sale) {
+        Sale newSale = new Sale();
+        newSale.TimeOfSale = DateTime.Now;
+        newSale.Salesperson = Sale.Salesperson;
 
-        var productIds = Order.OrderProducts.Select(op => op.ProductId).ToList();
+        var productIds = Sale.SaleLines.Select(line => line.ProductId).ToList();
 
         var products = await _db.Products
             .Where(p => productIds.Contains(p.Id))
             .Include(p => p.InventoryItems)
             .ToListAsync();
 
-        foreach (var orderProduct in Order.OrderProducts) {
+        foreach (var line in Sale.SaleLines) {
 
-            var product = products.FirstOrDefault(p => p.Id == orderProduct.ProductId);
+            var product = products.FirstOrDefault(p => p.Id == line.ProductId);
             
-            product.InventoryItems = orderProduct.Product.InventoryItems;
+            product.InventoryItems = line.Product.InventoryItems;
 
-            var newOrderProduct = new OrderProduct() {
-                OrderId = orderProduct.OrderId,
-                ProductId = orderProduct.ProductId,
-                QtyOnOrder = orderProduct.QtyOnOrder,
-                OrderProductPrice = orderProduct.OrderProductPrice,
-                Tax = orderProduct.Tax,
-                LineDiscount = orderProduct.LineDiscount
+            var newLine = new SaleLine() {
+                SaleId = line.SaleId,
+                ProductId = line.ProductId,
+                Units = line.Units,
+                UnitSalePrice = line.UnitSalePrice,
+                UnitCost = line.UnitCost,
+                ApplyTax = line.ApplyTax,
+                LineDiscount = line.LineDiscount
             };
 
-            newOrder.OrderProducts.Add(newOrderProduct);
+            newSale.SaleLines.Add(newLine);
         }
 
-        _db.Orders.Attach(newOrder);
+        _db.Sales.Attach(newSale);
         await _db.SaveChangesAsync();
 
-        return newOrder.OrderId;
+        return newSale.Id;
     }
 } 

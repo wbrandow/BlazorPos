@@ -35,16 +35,26 @@ namespace BlazorPos {
         public decimal MSRP { get; set; }
 
         [RegularExpression(@"^\d+(\.\d{1,2})?$", ErrorMessage = "Please enter a valid price.")]
-        public decimal OnlinePrice { get; set; }
+        public decimal OnlinePrice { get; set; }        
 
         [RegularExpression(@"^\d+(\.\d{1,2})?$?", ErrorMessage = "Please enter a valid price.")]
         public decimal DefaultCost { get; set; }
 
         public int TaxClassId { get; set; } = 1;
 
-        [JsonIgnore]
         public TaxClass TaxClass { get; set; }
 
         public List<InventoryItem> InventoryItems { get; set; } = new List<InventoryItem>();
+
+
+        public int GetQuantityOnHand() {
+            int qtyOnHand = 0;
+
+            foreach (var inventoryItem in InventoryItems) {
+                qtyOnHand += inventoryItem.QtyOnHand;
+            }
+
+            return qtyOnHand;
+        }
     } 
 }

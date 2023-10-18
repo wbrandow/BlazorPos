@@ -2,34 +2,33 @@
     <table class="table register-product-detail-table">
         <tbody>
             <tr>
-                <h3>@OrderProduct.Product.Brand</h3>
+                <h3>@SaleLine.Product.Brand</h3>
             </tr>
             <tr>
-                <h4>@OrderProduct.Product.Description</h4>
+                <h4>@SaleLine.Product.Description</h4>
             </tr>
             <tr>
                 <td>
                     <label>Qty:</label>
-                    <InputNumber @bind-Value="OrderProduct.QtyOnOrder" />
-                    <ValidationMessage For="@(() => OrderProduct.QtyOnOrder)" />
+                    <InputNumber @bind-Value="SaleLine.Units" />
+                    <ValidationMessage For="@(() => SaleLine.Units)" />
                 </td>
                 <td>
                     <label>Price:</label>
-                    <InputNumber @bind-Value="OrderProduct.OrderProductPrice" />
-                    <ValidationMessage For="@(() => OrderProduct.OrderProductPrice)" />
+                    <InputNumber @bind-Value="SaleLine.UnitSalePrice" />
+                    <ValidationMessage For="@(() => SaleLine.UnitSalePrice)" />
                 </td> 
 
-                <!-- FIXME: Implement discounts -->
                 <td>
                     <label>Discount:</label>
-                    <InputNumber @bind-Value="OrderProduct.LineDiscount"/>%
-                    <ValidationMessage For="@(() => OrderProduct.LineDiscount)" />
+                    <InputNumber @bind-Value="SaleLine.LineDiscount"/>%
+                    <ValidationMessage For="@(() => SaleLine.LineDiscount)" />
                 </td>
 
                 <td>
                     <label>Tax:</label>
-                    <InputSelect @bind-Value="OrderProduct.Tax">
-                        <option selected="true" value="true">Yes</option>
+                    <InputSelect @bind-Value="SaleLine.ApplyTax">
+                        <option value="true">Yes</option>
                         <option value="false">No</option>
                     </InputSelect>
                 </td>       
@@ -38,7 +37,7 @@
             <tr>
                 <td>
                     <button type="button" class="btn btn-danger" aria-label="Remove product from order"
-                        @onclick="@(() => RemoveProduct(OrderProduct.ProductId))">
+                        @onclick="@(() => RemoveProduct(SaleLine.ProductId))">
                         Remove
                     </button>
                 </td>
@@ -56,7 +55,7 @@
 </div>
 
 @code {
-    [Parameter] public OrderProduct OrderProduct { get; set; }
+    [Parameter] public SaleLine SaleLine { get; set; }
 
     [Parameter] public EventCallback<int> OnRemoveProduct { get; set; } 
 
@@ -69,5 +68,4 @@
     public async Task CloseProductDetail() {
         await OnCloseProductDetail.InvokeAsync();
     }        
-
 }

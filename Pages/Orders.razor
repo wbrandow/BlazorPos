@@ -8,17 +8,19 @@
 
 <div>
     <div class="your-orders">
-        <h2>Your Orders</h2>
+        <h2>Your Sales</h2>
         <div class="table-responsive">
             <table class="table table-hover orders-table">
                 <thead>
-                    <th>Order ID</th>
-                    <th>Products Purchased</th>
+                    <th>ID</th>
+                    <th>Salesperson</th>
+                    <th>Units Sold</th>
                     <th>Subtotal</th>
                     <th>Discount</th>
                     <th>Discounted Subtotal</th>
                     <th>Tax</th>
                     <th>Total Price</th>
+                    <th>Customer</th>
                     @if (createdTimeDesc == true) {
                         <th aria-label="Sort by Created Time in ascending order" role="button" tabindex="0" 
                             @onclick="() => CreatedTimeSort()" @onkeydown="e => HandleKeyDown(e)">
@@ -33,16 +35,27 @@
                     }
                 </thead>
                 <tbody>
-                @foreach (var order in orders) {
+                @foreach (var sale in sales) {
                     <tr class="order-info">
-                        <td>@order.OrderId</td>
-                        <td>@order.OrderProducts.Sum(op => op.QtyOnOrder)</td>
-                        <td>$@order.GetTotalPriceBeforeDiscount().ToString("0.00")</td>
-                        <td>$@order.GetTotalDiscount().ToString("0.00")</td>
-                        <td>$@order.GetTotalPrice().ToString("0.00")</td>
-                        <td>$@order.GetTotalTax().ToString("0.00")</td>
-                        <td>$@order.GetTotalPriceWithTax().ToString("0.00")</td>
-                        <td>@order.CreatedTime</td>
+                        <td>@sale.Id</td>
+                        <td>@sale.Salesperson</td>
+                        <td>@sale.SaleLines.Sum(line => line.Units)</td>
+                        <td>$@sale.GetSubtotal().ToString("0.00")</td>
+                        <td>$@sale.GetTotalDiscount().ToString("0.00")</td>
+                        <td>$@sale.GetDiscountedSubtotal().ToString("0.00")</td>
+                        <td>$@sale.GetTotalTax().ToString("0.00")</td>
+                        <td>$@sale.GetTotal().ToString("0.00")</td>
+                        @if (sale.Customer != null) {
+                            <td>
+                                @sale.Customer.FirstName @sale.Customer.LastName
+                            </td>
+                        }
+                        else {
+                            <td>
+                                No Customer
+                            </td>
+                        }
+                        <td>@sale.TimeOfSale</td>
                     </tr>   
                 }
                 </tbody>
@@ -52,7 +65,7 @@
 </div>
 
 @code {
-    List<Order> orders = new List<Order>();
+    List<Sale> sales = new List<Sale>();
     List<TaxClass> taxClasses = new List<TaxClass>();
 
     private bool createdTimeDesc = true;    
@@ -60,17 +73,17 @@
     protected override async Task OnInitializedAsync() {
         string username = authStateProvider.GetAuthenticationStateAsync().Result.User.Identity.Name;
 
-        orders = await HttpClient.GetFromJsonAsync<List<Order>>(
+        sales = await HttpClient.GetFromJsonAsync<List<Sale>>(
             $"{NavigationManager.BaseUri}api/orders/{username}");
         
         taxClasses = await HttpClient.GetFromJsonAsync<List<TaxClass>>(
             $"{NavigationManager.BaseUri}api/settings/taxclasses");
 
-        foreach (var order in orders) {
-            foreach (var orderProduct in order.OrderProducts) {
+        foreach (var sale in sales) {
+            foreach (var line in sale.SaleLines) {
                 foreach (var taxClass in taxClasses) {
-                    if (orderProduct.Product.TaxClassId == taxClass.Id)
-                        orderProduct.Product.TaxClass = taxClass;
+                    if (line.Product.TaxClassId == taxClass.Id)
+                        line.Product.TaxClass = taxClass;
                 }
             }
         }    
@@ -80,9 +93,9 @@
         createdTimeDesc = !createdTimeDesc;
 
         if (createdTimeDesc) {
-            orders = orders.OrderByDescending(o => o.CreatedTime).ToList();
+            sales = sales.OrderByDescending(s => s.TimeOfSale).ToList();
         } else {
-            orders = orders.OrderBy(o => o.CreatedTime).ToList();
+            sales = sales.OrderBy(s => s.TimeOfSale).ToList();
         }
 
         StateHasChanged();

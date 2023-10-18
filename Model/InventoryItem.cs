@@ -15,9 +15,6 @@ namespace BlazorPos {
 
         public int ProductId { get; set; }
 
-        [JsonIgnore]
-        public Product Product { get; set; }
-
         [Range(0, int.MaxValue, ErrorMessage = "QtyOnHand cannot be negative for an InventoryItem.")]
         public int QtyOnHand { get; set; }
 

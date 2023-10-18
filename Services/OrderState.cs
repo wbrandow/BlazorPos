@@ -1,49 +1,49 @@
 namespace BlazorPos.Services;
 
 public class OrderState {
-    public Order Order { get; private set; } = new Order();
+    public Sale Sale { get; private set; } = new Sale();
 
-    public OrderProduct OrderProduct { get; set; }
+    public SaleLine SaleLine { get; set; }
 
     public OrderState() {
-        Order = new Order();
+        Sale = new Sale();
     }
 
     public void SelectProduct(Product product) {
-        if (Order.OrderProducts.Any(op => op.ProductId == product.Id)) {
-            var orderProductToUpdate = Order.OrderProducts.FirstOrDefault(op => op.ProductId == product.Id);
-            orderProductToUpdate.QtyOnOrder++;
+        if (Sale.SaleLines.Any(line => line.ProductId == product.Id)) {
+            var saleLineToUpdate = Sale.SaleLines.FirstOrDefault(line => line.ProductId == product.Id);
+            saleLineToUpdate.Units++;
         }
         else {
-            OrderProduct = new OrderProduct() {
-            OrderId = Order.OrderId,
-            Order = Order,
-            ProductId = product.Id,
-            Product = product,
-            OrderProductPrice = product.Price,
-            QtyOnOrder = 1,
+            SaleLine = new SaleLine() {
+                SaleId = Sale.Id,
+                Sale = Sale,
+                ProductId = product.Id,
+                Product = product,
+                UnitSalePrice = product.Price,
+                Units = 1
             };
 
-            Order.OrderProducts.Add(OrderProduct);
-            OrderProduct = null;
+            Sale.SaleLines.Add(SaleLine);
+            SaleLine = null;
         }
     }
 
     public void RemoveProduct(int productId) {
-        OrderProduct = new OrderProduct();
+        SaleLine = new SaleLine();
 
-        foreach (var op in Order.OrderProducts) {
-            if (op.ProductId == productId) {
-                OrderProduct = op;
+        foreach (var line in Sale.SaleLines) {
+            if (line.ProductId == productId) {
+                SaleLine = line;
             }
         }
 
-        Order.OrderProducts.Remove(OrderProduct);
+        Sale.SaleLines.Remove(SaleLine);
         
-        OrderProduct = null;
+        SaleLine = null;
     }
 
     public void ResetOrder() {
-        Order = new Order();
+        Sale = new Sale();
     }
 }

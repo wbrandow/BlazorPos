@@ -5,11 +5,11 @@ namespace BlazorPos.Data;
 public class ProductStoreContext : DbContext {
     public ProductStoreContext(DbContextOptions options) : base(options) {}
 
-    public DbSet<Order> Orders { get; set; }
+    public DbSet<Sale> Sales { get; set; }
 
     public DbSet<Product> Products { get; set; }
 
-    public DbSet<OrderProduct> OrderProducts { get; set; }
+    public DbSet<SaleLine> SaleLines { get; set; }
 
     public DbSet<TaxRate> TaxRates { get; set; }
 
@@ -20,15 +20,10 @@ public class ProductStoreContext : DbContext {
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<OrderProduct>()
-            .HasOne(op => op.Order)
-            .WithMany(o => o.OrderProducts)
-            .HasForeignKey(op => op.OrderId);
-
-        modelBuilder.Entity<OrderProduct>()
-            .HasOne(op => op.Product)
-            .WithMany()
-            .HasForeignKey(op => op.ProductId);
+        modelBuilder.Entity<InventoryItem>()
+            .HasOne<Product>()
+            .WithMany(p => p.InventoryItems)
+            .HasForeignKey(item => item.ProductId);
 
         modelBuilder.Entity<Product>()
             .HasOne(p => p.TaxClass)
@@ -40,9 +35,25 @@ public class ProductStoreContext : DbContext {
             .WithMany()
             .UsingEntity(junction => junction.ToTable("TaxClassTaxRate")); 
 
-        modelBuilder.Entity<InventoryItem>()
-            .HasOne(item => item.Product)
-            .WithMany(p => p.InventoryItems)
-            .HasForeignKey(item => item.ProductId);       
+        modelBuilder.Entity<SaleLine>()
+            .HasOne(line => line.Product)
+            .WithMany()
+            .HasForeignKey(line => line.ProductId);
+
+        modelBuilder.Entity<SaleLine>()
+            .HasOne(line => line.Sale)
+            .WithMany(s => s.SaleLines)
+            .HasForeignKey(line => line.SaleId);
+
+        modelBuilder.Entity<Sale>()
+            .HasOne(s => s.Customer)
+            .WithMany(c => c.Sales)
+            .HasForeignKey(s => s.CustomerId) 
+            .IsRequired(false);
+
+        modelBuilder.Entity<Payment>()
+            .HasOne<Sale>()
+            .WithMany(s => s.Payments)
+            .HasForeignKey(p => p.SaleId);   
     }
 }

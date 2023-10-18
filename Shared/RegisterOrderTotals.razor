@@ -2,25 +2,25 @@
     <table class="table register-order-totals-table">
         <tr>
             <th scope="row">Units</th>
-            <td>@Order.OrderProducts.Sum(op => op.QtyOnOrder)</td>
+            <td>@Sale.SaleLines.Sum(line => line.Units)</td>
         </tr>
         <tr>
             <th scope="row">Subtotal</th>
-            <td>$@Order.GetTotalPrice().ToString("0.00")</td>
+            <td>$@Sale.GetDiscountedSubtotal().ToString("0.00")</td>
         </tr>
         <tr>
             <th scope="row">Tax</th>
-            <td>$@Order.GetTotalTax().ToString("0.00")</td>
+            <td>$@Sale.GetTotalTax().ToString("0.00")</td>
         </tr>
         <hr>
         <tr>
             <th scope="row">Total</th>
-            <td>$@Order.GetTotalPriceWithTax().ToString("0.00")</td>
+            <td>$@Sale.GetTotal().ToString("0.00")</td>
         </tr>
         
     </table>
 </div>
 
 @code {
-    [Parameter] public Order Order { get; set; }
+    [Parameter] public Sale Sale { get; set; }
 }

@@ -12,6 +12,6 @@ namespace BlazorPos {
         [Required, MinLength(2, ErrorMessage = "Tax Class name must be at least 2 characters."), MaxLength(50, ErrorMessage = "Input is too long.")]
         public string TaxClassName { get; set; }
 
-        public List<TaxRate> TaxRates { get; set; }
+        public List<TaxRate> TaxRates { get; set; } = new List<TaxRate>();
      }
 }

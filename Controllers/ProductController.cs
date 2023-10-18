@@ -18,6 +18,8 @@ public class ProductController : Controller {
     public async Task<ActionResult<List<Product>>> GetProducts() {
         return await _db.Products
             .Include(p => p.InventoryItems)
+            .Include(p => p.TaxClass)
+                .ThenInclude(tc => tc.TaxRates)
             .ToListAsync();
     }
     
@@ -26,6 +28,8 @@ public class ProductController : Controller {
         var product = await _db.Products
             .Where(p => p.Id == ProductId)
             .Include(p => p.InventoryItems)
+            .Include(p => p.TaxClass)
+                .ThenInclude(tc => tc.TaxRates)
             .SingleOrDefaultAsync();
 
         if (product == null) {
@@ -44,35 +48,48 @@ public class ProductController : Controller {
                     return await _db.Products
                         .Where(p => p.Description.ToLower().Contains(searchValue))
                         .Include(p => p.InventoryItems)
+                        .Include(p => p.TaxClass)
+                            .ThenInclude(tc => tc.TaxRates)
                         .ToListAsync(); 
                 
                 case "Brand":
                     return await _db.Products
                         .Where(p => p.Brand.ToLower().Contains(searchValue))
                         .Include(p => p.InventoryItems)
+                        .Include(p => p.TaxClass)
+                            .ThenInclude(tc => tc.TaxRates)
                         .ToListAsync();
                     
                 case "Vendor":
                     return await _db.Products
                         .Where(p => p.Vendor.ToLower().Contains(searchValue))
                         .Include(p => p.InventoryItems)
+                        .Include(p => p.TaxClass)
+                            .ThenInclude(tc => tc.TaxRates)
                         .ToListAsync();  
 
                 case "UPC":
                     return await _db.Products
                         .Where(p => p.UPC.ToLower().Contains(searchValue))
+                        .Include(p => p.InventoryItems)
+                        .Include(p => p.TaxClass)
+                            .ThenInclude(tc => tc.TaxRates)
                         .ToListAsync();
 
                 case "EAN":
                     return await _db.Products
                         .Where(p => p.EAN.ToLower().Contains(searchValue))
                         .Include(p => p.InventoryItems)
+                        .Include(p => p.TaxClass)
+                            .ThenInclude(tc => tc.TaxRates)
                         .ToListAsync(); 
 
                 case "SKU":
                     return await _db.Products
                         .Where(p => p.SKU.ToLower().Contains(searchValue))
                         .Include(p => p.InventoryItems)
+                        .Include(p => p.TaxClass)
+                            .ThenInclude(tc => tc.TaxRates)
                         .ToListAsync();               
 
                 default:
@@ -83,7 +100,9 @@ public class ProductController : Controller {
                             || p.UPC.ToLower().Contains(searchValue)
                             || p.EAN.ToLower().Contains(searchValue)
                             || p.SKU.ToLower().Contains(searchValue))
-                        .Include(p => p.InventoryItems)    
+                        .Include(p => p.InventoryItems) 
+                        .Include(p => p.TaxClass)
+                            .ThenInclude(tc => tc.TaxRates)   
                         .ToListAsync();
             }
         }    
@@ -93,11 +112,16 @@ public class ProductController : Controller {
         var existingProduct = await _db.Products
             .Where(p => p.Id == ProductId)
             .Include(p => p.InventoryItems)
+            .Include(p => p.TaxClass)
+                .ThenInclude(tc => tc.TaxRates)
             .SingleOrDefaultAsync();
 
         if (existingProduct == null) {
             return NotFound();
         }
+
+        Console.WriteLine("Existing product Tax Class: " + existingProduct.TaxClass.TaxClassName);
+        
 
         existingProduct.UPC = updatedProduct.UPC;
         existingProduct.EAN = updatedProduct.EAN;

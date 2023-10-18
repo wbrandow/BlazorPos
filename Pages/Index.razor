@@ -79,25 +79,25 @@
     </ul>
 </div>
 <div class="cart">
-    @if (Order.OrderProducts.Any()) {
+    @if (Sale.SaleLines.Any()) {
         <div class="order-contents">
             <h2>Your order</h2>
 
-            @foreach (var orderProduct in Order.OrderProducts) {
+            @foreach (var saleLine in Sale.SaleLines) {
                 <div class="cart-item">
                     <div class="remove-button">
                         <button class="oi oi-trash btn-danger" aria-label="Remove Item" 
-                        @onclick="@(() => RemoveProduct(orderProduct.ProductId))"></button>    
+                        @onclick="@(() => RemoveProduct(saleLine.ProductId))"></button>    
                     </div>
-                    <div class="selectedProduct-description">@orderProduct.Product.Description</div>
+                    <div class="selectedProduct-description">@saleLine.Product.Description</div>
                     <div class="selectedProduct-qty">
-                        <input @bind="@orderProduct.QtyOnOrder" />
+                        <input @bind="@saleLine.Units" />
                     </div>
                     <div class="selectedProduct-price">
-                        X $@orderProduct.Product.Price.ToString("0.00")
+                        X $@saleLine.Product.Price.ToString("0.00")
                     </div>
                     <div class="selectedProduct-line-price">
-                        $@orderProduct.GetLinePrice().ToString("0.00")
+                        $@saleLine.GetLineTotal().ToString("0.00")
                     </div>
                 </div>
             }
@@ -110,7 +110,7 @@
     <div class="order-total @(ProductsInOrder.Any() ? "" : "hidden")">
         <div class="cart-total-price">    
             <strong>Total:</strong>
-            <span>$@Order.GetTotalPrice().ToString("0.00")</span>
+            <span>$@Sale.GetTotal().ToString("0.00")</span>
         </div>    
         <div class="order-button">
             <a href="checkout" aria-label="Order"
@@ -131,14 +131,14 @@
 
     List<Product> ProductsInOrder = new List<Product>();    
 
-    Order Order => OrderState.Order;    
+    Sale Sale => OrderState.Sale;    
 
     private string? searchValue; 
     private string? searchField;
 
     protected override async Task OnInitializedAsync() {
         Products = await HttpClient.GetFromJsonAsync<List<Product>>(NavigationManager.BaseUri + "api/products");
-        ProductsInOrder = Order.OrderProducts.Select(op => op.Product).ToList();    
+        ProductsInOrder = Sale.SaleLines.Select(line => line.Product).ToList();    
 
         if (authenticationState is not null)
         {
@@ -173,13 +173,13 @@
 
     private void SelectProduct(Product product) {
         OrderState.SelectProduct(product);
-        ProductsInOrder = Order.OrderProducts.Select(op => op.Product).ToList();
+        ProductsInOrder = Sale.SaleLines.Select(line => line.Product).ToList();
         StateHasChanged();
     }
 
     private void RemoveProduct(int productId) {
         OrderState.RemoveProduct(productId);
-        ProductsInOrder = Order.OrderProducts.Select(op => op.Product).ToList();
+        ProductsInOrder = Sale.SaleLines.Select(line => line.Product).ToList();
         StateHasChanged();
     }
 

@@ -42,35 +42,63 @@
             }
         </div>
         <div class="col-sm-6">
-            @if (product == null) {
-                <p>Loading...</p>
-            }
-            else {
-                <table class="table table-hover">
-                    <thead>
-                        <th scope="col">Qty</th>
-                        <th scope="col">Entered Inventory</th>
-                        <th scope="col">Entered By</th>
-                        <th scope="col">PO Number</th>
-                    </thead>
-                    @foreach (var item in product.InventoryItems) {
-                        <tbody>
-                            <tr>
-                                <td>@item.QtyOnHand</td>
-                                <td>@item.AquisitionDate</td>
-                                <td>@item.AddedBy</td>
-                                @if (item.PurchaseOrderId == null) {
-                                    <td></td>
-                                }
-                                else {
-                                    <td>@item.PurchaseOrderId</td>
-                                }
-                            </tr>
-                        </tbody>
-                    }
-                </table>
-                <h4>Total On Hand: @product.InventoryItems.Sum(item => item.QtyOnHand)</h4>
-            }
+            <div>
+                @if (product == null) {
+                    <p>Loading...</p>
+                }
+                else {
+                    <table class="table table-hover">
+                        <thead>
+                            <th scope="col">Qty</th>
+                            <th scope="col">Entered Inventory</th>
+                            <th scope="col">Entered By</th>
+                            <th scope="col">PO Number</th>
+                        </thead>
+                        @foreach (var item in product.InventoryItems) {
+                            <tbody>
+                                <tr>
+                                    <td>@item.QtyOnHand</td>
+                                    <td>@item.AquisitionDate</td>
+                                    <td>@item.AddedBy</td>
+                                    @if (item.PurchaseOrderId == null) {
+                                        <td></td>
+                                    }
+                                    else {
+                                        <td>@item.PurchaseOrderId</td>
+                                    }
+                                </tr>
+                            </tbody>
+                        }
+                    </table>
+                    <h4>Total On Hand: @product.GetQuantityOnHand()</h4>
+                }
+            </div>
+            <div>
+                @if (SaleLines == null || SaleLines.Count() == 0) {
+                    <p>No sale lines.</p>
+                }
+                else {
+                    <table class="table table-hover">
+                        <thead>
+                            <th scope="col">Sale Id</th>
+                            <th scope="col">Time Sold</th>
+                            <th scope="col">Salesperson</th>
+                            <th scope="col">Units Sold</th>
+                        </thead>
+                        @foreach (var line in SaleLines) {
+                            <tbody>
+                                <tr>
+                                    <td>@line.SaleId</td>
+                                    <td>@line.Sale.TimeOfSale</td>
+                                    <td>@line.Sale.Salesperson</td>
+                                    <td>@line.Units</td>
+                                </tr>
+                            </tbody>
+                        }
+                    </table>
+                    <h4>Total Sold: @SaleLines.Sum(line => line.Units)</h4>
+                }
+            </div>
         </div>
     </div>
 </div>
@@ -85,6 +113,8 @@
     Product product;
     bool invalidProduct = false;
 
+    public List<SaleLine> SaleLines = new List<SaleLine>();
+
     private EditContext editContext;
     bool isError = false;
 
@@ -92,6 +122,19 @@
         try {
             product = await HttpClient.GetFromJsonAsync<Product>(
                 $"{NavigationManager.BaseUri}api/products/{ProductId}");
+
+            var sales = await HttpClient.GetFromJsonAsync<List<Sale>>(
+                $"{NavigationManager.BaseUri}api/orders/sales-by-product?productId={ProductId}");    
+
+            foreach (var sale in sales) {
+                foreach (var line in sale.SaleLines) {
+                    if (line.ProductId == ProductId) {
+                        line.Sale = sale;
+                        line.SaleId = sale.Id;
+                        SaleLines.Add(line);
+                    }
+                }
+            }
 
             editContext = new(product);
             editContext.OnFieldChanged += HandleFieldChanged;    
@@ -108,7 +151,9 @@
     }
 
     public void Dispose() {
-        editContext.OnFieldChanged -= HandleFieldChanged;
+        if (editContext != null) {
+            editContext.OnFieldChanged -= HandleFieldChanged;
+        }
     }
 
     async Task UpdateProduct() {
@@ -117,7 +162,6 @@
         if (QtyToAdd > 0) {
             InventoryItem = new InventoryItem() {
                 ProductId = product.Id,
-                Product = product,
                 QtyOnHand = QtyToAdd,
                 UnitCost = product.DefaultCost,
                 AquisitionDate = DateTime.Now,
@@ -130,6 +174,10 @@
         try {
             var response = await HttpClient.PutAsJsonAsync(
                 $"{NavigationManager.BaseUri}api/products/{ProductId}", product);
+
+            var responseContent = await response.Content.ReadAsStringAsync();
+            Console.Error.WriteLine("HTTP response: " + responseContent);    
+            response.EnsureSuccessStatusCode();
 
             NavigationManager.NavigateTo("/");    
         }
@@ -149,5 +197,4 @@
             Console.Error.WriteLine(ex);
         }
     }
-
 }

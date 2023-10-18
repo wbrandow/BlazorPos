@@ -11,40 +11,40 @@
 
 <div class="main">
     <h3>Order Review</h3>
-    @foreach (var orderProduct in Order.OrderProducts) {
+    @foreach (var line in Sale.SaleLines) {
         <div class="checkout-item row">
             <div class="checkout-product-description col-sm-8">
                 <strong>
-                    @orderProduct.Product.Brand
-                    @orderProduct.Product.Description
+                    @line.Product.Brand
+                    @line.Product.Description
                 </strong>
             </div>
             <div class="checkout-product-price col-sm-3">
                 <div class="d-flex justify-content-between align-items-center">
-                    <span>@orderProduct.QtyOnOrder X</span>
-                    <span>$@orderProduct.OrderProductPrice.ToString("0.00")</span>
+                    <span>@line.Units X</span>
+                    <span>$@line.UnitSalePrice.ToString("0.00")</span>
                 </div>
             </div>
             <div class="checkout-line-price col-sm-1">
                 <strong>
-                    $@orderProduct.GetLinePriceBeforeDiscount().ToString("0.00")
+                    $@line.GetLineSubtotal().ToString("0.00")
                 </strong>
             </div>
         </div>
     }   
 
     <div class="checkout-total-price">
-        <div>Units: @Order.OrderProducts.Sum(op => op.QtyOnOrder)</div>
-        <div>Subtotal: $@Order.GetTotalPriceBeforeDiscount().ToString("0.00")</div>
-        @if (Order.GetTotalDiscount() > 0) {
-            <div>Discount: <span style="color:red;">$@Order.GetTotalDiscount().ToString("0.00")</span></div>
-            <div>Discounted Subtotal: $@Order.GetTotalPrice().ToString("0.00")</div>           
+        <div>Units: @Sale.SaleLines.Sum(line => line.Units)</div>
+        <div>Subtotal: $@Sale.GetSubtotal().ToString("0.00")</div>
+        @if (Sale.GetTotalDiscount() > 0) {
+            <div>Discount: <span style="color:red;">$@Sale.GetTotalDiscount().ToString("0.00")</span></div>
+            <div>Discounted Subtotal: $@Sale.GetDiscountedSubtotal().ToString("0.00")</div>           
         }
-        <div>Tax: $@Order.GetTotalTax().ToString("0.00")</div>
+        <div>Tax: $@Sale.GetTotalTax().ToString("0.00")</div>
         <div>
             <strong>
                 Total price:
-                $@Order.GetTotalPriceWithTax().ToString("0.00")
+                $@Sale.GetTotal().ToString("0.00")
             </strong>
         </div>
     </div>
@@ -64,12 +64,12 @@
 </div>
 
 @code {
-    Order Order => OrderState.Order;
+    Sale Sale => OrderState.Sale;
 
     List<Product> Products = new List<Product>();
         
     protected override void OnInitialized() {
-        Products = Order.OrderProducts.Select(op => op.Product).ToList();
+        Products = Sale.SaleLines.Select(line => line.Product).ToList();
     } 
 
     private void Back() {
@@ -78,22 +78,22 @@
 
     async Task PlaceOrder() {
         // FIXME: Remove InventoryItems
-        Console.WriteLine("#In Checkout.razor#PlaceOrder():  Order Id = " + Order.OrderId);
+        Console.WriteLine("#In Checkout.razor#PlaceOrder():  Sale Id = " + Sale.Id);
         string username = authStateProvider.GetAuthenticationStateAsync().Result.User.Identity.Name;
-        Order.CreatedBy = username;
+        Sale.Salesperson = username;
         
-        foreach (var orderProduct in Order.OrderProducts){
-            int qty = orderProduct.QtyOnOrder;
+        foreach (var line in Sale.SaleLines){
+            int qty = line.Units;
             while (qty > 0) {
-                for (int i = 0; i < orderProduct.Product.InventoryItems.Count(); i++) {
-                    Console.WriteLine("QUANTITY ON HAND BEFORE: " + orderProduct.Product.InventoryItems[i].QtyOnHand);
-                    if (qty >= orderProduct.Product.InventoryItems[i].QtyOnHand) {
-                        qty -= orderProduct.Product.InventoryItems[i].QtyOnHand;
-                        // FIXME: Add InventoryItem to sale
-                        orderProduct.Product.InventoryItems.Remove(orderProduct.Product.InventoryItems[i]);
+                for (int i = 0; i < line.Product.InventoryItems.Count(); i++) {
+                    Console.WriteLine("QUANTITY ON HAND BEFORE: " + line.Product.InventoryItems[i].QtyOnHand);
+                    if (qty >= line.Product.InventoryItems[i].QtyOnHand) {
+                        qty -= line.Product.InventoryItems[i].QtyOnHand;
+                        
+                        line.Product.InventoryItems.Remove(line.Product.InventoryItems[i]);
                     }
-                    else if (qty < orderProduct.Product.InventoryItems[i].QtyOnHand) {
-                        orderProduct.Product.InventoryItems[i].QtyOnHand -= qty;
+                    else if (qty < line.Product.InventoryItems[i].QtyOnHand) {
+                        line.Product.InventoryItems[i].QtyOnHand -= qty;
                         qty = 0;
                     }
                     if (qty == 0) {
@@ -103,12 +103,9 @@
             }
         }
 
-        var response = await HttpClient.PostAsJsonAsync(NavigationManager.BaseUri + "api/orders", Order);
+        var response = await HttpClient.PostAsJsonAsync(NavigationManager.BaseUri + "api/orders", Sale);
 
         OrderState.ResetOrder();
         NavigationManager.NavigateTo($"/orders");    
     }
 }
-
-
-
