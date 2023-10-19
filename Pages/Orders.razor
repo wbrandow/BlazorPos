@@ -36,10 +36,11 @@
                 </thead>
                 <tbody>
                 @foreach (var sale in sales) {
-                    <tr class="order-info">
+                    <tr class="order-info" role="button" tabindex="0" aria-label="Click to open sale details"
+                        @onclick="() => OpenSaleDetails(sale.Id)" @onkeydown="e => HandleKeyDown(e, sale.Id)">
                         <td>@sale.Id</td>
                         <td>@sale.Salesperson</td>
-                        <td>@sale.SaleLines.Sum(line => line.Units)</td>
+                        <td>@sale.GetUnitsSold()</td>
                         <td>$@sale.GetSubtotal().ToString("0.00")</td>
                         <td>$@sale.GetTotalDiscount().ToString("0.00")</td>
                         <td>$@sale.GetDiscountedSubtotal().ToString("0.00")</td>
@@ -101,11 +102,22 @@
         StateHasChanged();
     }
 
+    private void OpenSaleDetails(int saleId) {
+        NavigationManager.NavigateTo($"/orders/sale/{saleId}");
+    }
+
     private void HandleKeyDown(KeyboardEventArgs e) {
-        if (e.Key == "Enter") {
+        if (e.Key == "Enter" || e.Key == " ") {
             // Trigger the action when Enter or Space is pressed
             CreatedTimeSort();
         }
     }
+
+    private void HandleKeyDown(KeyboardEventArgs e, int saleId) {
+        if (e.Key == "Enter" || e.Key == " ") {
+            // Trigger the action when Enter or Space is pressed
+            OpenSaleDetails(saleId);
+        }
+    }    
 }
 

@@ -1,0 +1,131 @@
+@page "/orders/sale/{saleId:int}"
+@inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
+@using Blazored.Toast.Services
+@inject IToastService toastService
+
+<div class="main">
+    @if (invalidSale) {
+        <h2>Product not found</h2>
+        <p>This product does not seem to exist.</p>
+    }
+    else if (Sale == null) {
+        <h2>
+            <text>Loading...</text>
+        </h2>
+    }
+    else {
+        <div>
+            <label>
+                <h1>Sale Review</h1>
+            </label>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Salesperson</th>
+                        <th>Units Sold</th>
+                        <th>Subtotal</th>
+                        <th>Discount</th>
+                        <th>Discounted Subtotal</th>
+                        <th>Tax</th>
+                        <th>Total Price</th>
+                        <th>Profit</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>@Sale.Id</td>
+                        <td>@Sale.Salesperson</td>
+                        <td>@Sale.GetUnitsSold()</td>
+                        <td>$@Sale.GetSubtotal().ToString("0.00")</td>
+                        <td>$@Sale.GetTotalDiscount().ToString("0.00")</td>
+                        <td>$@Sale.GetDiscountedSubtotal().ToString("0.00")</td>
+                        <td>$@Sale.GetTotalTax().ToString("0.00")</td>
+                        <td>$@Sale.GetTotal().ToString("0.00")</td>
+                        <td>$@Sale.GetProfit().ToString("0.00")</td>
+                        @if (Sale.Customer != null) {
+                            <td>
+                                @Sale.Customer.FirstName @Sale.Customer.LastName
+                            </td>
+                        }
+                        else {
+                            <td>
+                                No Customer
+                            </td>
+                        }
+                        <td>@Sale.TimeOfSale</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div>
+            <label>
+                <h3>Sale Lines</h3>
+            </label>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Brand</th>
+                        <th>Units Sold</th>
+                        <th>Price/Unit</th>
+                        <th>Total Price</th>
+                        <th>Avg Cost/Unit</th>
+                        <th>Total Cost</th>
+                        <th>Avg Profit/Unit</th>
+                        <th>Total Profit</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var line in Sale.SaleLines) {
+                        <tr>
+                            <td>@line.Product.Description</td>
+                            <td>@line.Product.Brand</td>
+                            <td>@line.Units</td>
+                            <td>$@line.GetDiscountedUnitPrice().ToString("0.00")</td>
+                            <td>$@line.GetLineTotal().ToString("0.00")</td>
+                            <td>$@line.UnitCost.ToString("0.00")</td>
+                            <td>$@line.GetLineCost().ToString("0.00")</td>
+                            <td>$@line.GetAvgUnitProfit().ToString("0.00")</td>
+                            <td>$@line.GetLineProfit().ToString("0.00")</td>
+                            <td>
+                                <button type="button" class="btn-primary" aria-label="Return Product"
+                                    @onclick="@(() => OpenReturn())">
+                                    Return
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int SaleId { get; set; }
+
+    public Sale Sale;
+    public bool invalidSale = false;
+
+
+    protected override async Task OnParametersSetAsync() {
+        try {
+            Sale = await HttpClient.GetFromJsonAsync<Sale>(
+                $"{NavigationManager.BaseUri}api/orders/sale/{SaleId}");
+        }
+        catch (Exception ex) {
+            invalidSale = true;
+            Console.Error.WriteLine(ex);
+        }
+    }
+
+    public void OpenReturn() {
+        toastService.ShowError("Return Button functionality not implemented yet!");
+    }
+}

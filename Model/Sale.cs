@@ -86,5 +86,9 @@ namespace BlazorPos {
 
             return totalProfit;
         }
+
+        public int GetUnitsSold() {
+            return this.SaleLines.Sum(line => line.Units);
+        }
     }
 }

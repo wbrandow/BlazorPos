@@ -35,11 +35,15 @@ namespace BlazorPos {
         
 
         public decimal GetLineSubtotal() {
-            return Units * UnitSalePrice;
+            return this.Units * this.UnitSalePrice;
         }
 
         public decimal GetLineDiscount() {
-            return Units * (UnitSalePrice * (LineDiscount / 100));
+            return this.Units * (this.UnitSalePrice * (this.LineDiscount / 100));
+        }
+
+        public decimal GetDiscountedUnitPrice() {
+            return this.UnitSalePrice - (this.UnitSalePrice * (this.LineDiscount / 100));
         }
 
         public decimal GetLineTotal() {
@@ -47,8 +51,16 @@ namespace BlazorPos {
         }
 
         public decimal GetLineProfit() {
-            decimal lineCost = Units * UnitCost;
+            decimal lineCost = this.Units * this.UnitCost;
             return this.GetLineTotal() - lineCost;
+        }
+
+        public decimal GetAvgUnitProfit() {
+            return this.GetLineProfit() / this.Units;
+        }
+
+        public decimal GetLineCost() {
+            return this.UnitCost * this.Units;
         }
     }
 }

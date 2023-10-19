@@ -77,23 +77,26 @@
     }
 
     async Task PlaceOrder() {
-        // FIXME: Remove InventoryItems
         Console.WriteLine("#In Checkout.razor#PlaceOrder():  Sale Id = " + Sale.Id);
         string username = authStateProvider.GetAuthenticationStateAsync().Result.User.Identity.Name;
         Sale.Salesperson = username;
         
         foreach (var line in Sale.SaleLines){
             int qty = line.Units;
+            decimal lineCost = 0;
             while (qty > 0) {
                 for (int i = 0; i < line.Product.InventoryItems.Count(); i++) {
                     Console.WriteLine("QUANTITY ON HAND BEFORE: " + line.Product.InventoryItems[i].QtyOnHand);
                     if (qty >= line.Product.InventoryItems[i].QtyOnHand) {
                         qty -= line.Product.InventoryItems[i].QtyOnHand;
                         
+                        lineCost += (line.Product.InventoryItems[i].UnitCost * line.Product.InventoryItems[i].QtyOnHand);
                         line.Product.InventoryItems.Remove(line.Product.InventoryItems[i]);
                     }
                     else if (qty < line.Product.InventoryItems[i].QtyOnHand) {
                         line.Product.InventoryItems[i].QtyOnHand -= qty;
+
+                        lineCost += (qty * line.Product.InventoryItems[i].UnitCost);
                         qty = 0;
                     }
                     if (qty == 0) {
@@ -101,6 +104,7 @@
                     }
                 }
             }
+            line.UnitCost = lineCost / line.Units;
         }
 
         var response = await HttpClient.PostAsJsonAsync(NavigationManager.BaseUri + "api/orders", Sale);

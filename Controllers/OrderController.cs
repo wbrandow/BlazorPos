@@ -18,6 +18,7 @@ public class OrderController : Controller {
         var sales = await _db.Sales
             .Include(s => s.SaleLines)
                 .ThenInclude(line => line.Product)
+            .AsSplitQuery()    
             .ToListAsync();
 
         return sales;    
@@ -30,9 +31,24 @@ public class OrderController : Controller {
             .OrderByDescending(s => s.TimeOfSale)
             .Include(s => s.SaleLines)
                 .ThenInclude(line => line.Product)
+            .AsSplitQuery()    
             .ToListAsync();
 
         return sales;    
+    }
+
+    [HttpGet("sale/{saleId}")]
+    public async Task<ActionResult<Sale>> GetSaleById(int saleId) {
+        var sale = await _db.Sales
+            .Where(s => s.Id == saleId)
+            .Include(s => s.SaleLines)
+                .ThenInclude(line => line.Product)
+                    .ThenInclude(p => p.TaxClass)
+                        .ThenInclude(tc => tc.TaxRates)
+            .AsSplitQuery()            
+            .FirstOrDefaultAsync();
+
+        return sale;    
     }
 
     [HttpGet("sales-by-product")]
@@ -40,6 +56,7 @@ public class OrderController : Controller {
         var sales = await _db.Sales
             .Where(s => s.SaleLines.Any(line => line.ProductId == productId))
             .Include(s => s.SaleLines)
+            .AsSplitQuery()
             .ToListAsync();
 
         return sales;    
@@ -56,6 +73,7 @@ public class OrderController : Controller {
         var products = await _db.Products
             .Where(p => productIds.Contains(p.Id))
             .Include(p => p.InventoryItems)
+            .AsSplitQuery()
             .ToListAsync();
 
         foreach (var line in Sale.SaleLines) {

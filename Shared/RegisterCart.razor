@@ -13,7 +13,7 @@
             </thead>
             <tbody>
                 @foreach (var line in SaleLines) {
-                    <tr aria-label="View product details for @line.Product.Brand - @line.Product.Description"
+                    <tr aria-label="@($"View product details for {line.Product.Brand} - {line.Product.Description}")"
                         role="button" tabindex="0" 
                         @onclick="() => OpenProductDetails(line)" @onkeydown="e => HandleKeyDown(e, line)">
                         <td>
@@ -27,7 +27,12 @@
                         <td>@line.Product.Brand</td>
                         <td>@line.Product.Description</td>
                         <td>@line.Units</td>
-                        <td>$@line.UnitSalePrice.ToString("0.00")</td>
+                        @if (line.LineDiscount > 0) {
+                            <td><span style="text-decoration: line-through;">$@line.UnitSalePrice.ToString("0.00")</span> $@line.GetDiscountedUnitPrice().ToString("0.00")</td>
+                        }
+                        else {
+                            <td>$@line.UnitSalePrice.ToString("0.00")</td>
+                        }
                         <td>$@line.GetLineTotal().ToString("0.00")</td>
                     </tr>
                 }

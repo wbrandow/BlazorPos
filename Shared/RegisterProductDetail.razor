@@ -2,32 +2,36 @@
     <table class="table register-product-detail-table">
         <tbody>
             <tr>
-                <h3>@SaleLine.Product.Brand</h3>
+                <h3>
+                    <span aria-label="Brand Name">@SaleLine.Product.Brand</span>
+                </h3>
             </tr>
             <tr>
-                <h4>@SaleLine.Product.Description</h4>
+                <h4>
+                    <span aria-label="Product Description">@SaleLine.Product.Description</span>
+                </h4>
             </tr>
             <tr>
                 <td>
-                    <label>Qty:</label>
-                    <InputNumber @bind-Value="SaleLine.Units" />
+                    <label for="quantity">Qty:</label>
+                    <InputNumber id="quantity" name="quantity" @bind-Value="SaleLine.Units" />
                     <ValidationMessage For="@(() => SaleLine.Units)" />
                 </td>
                 <td>
-                    <label>Price:</label>
-                    <InputNumber @bind-Value="SaleLine.UnitSalePrice" />
+                    <label for="price">Price:</label>
+                    <InputNumber id="price" name="price" @bind-Value="SaleLine.UnitSalePrice" />
                     <ValidationMessage For="@(() => SaleLine.UnitSalePrice)" />
                 </td> 
 
                 <td>
-                    <label>Discount:</label>
-                    <InputNumber @bind-Value="SaleLine.LineDiscount"/>%
+                    <label for="discount">Discount:</label>
+                    <InputNumber id="discount" name="discount" @bind-Value="SaleLine.LineDiscount"/>%
                     <ValidationMessage For="@(() => SaleLine.LineDiscount)" />
                 </td>
 
                 <td>
-                    <label>Tax:</label>
-                    <InputSelect @bind-Value="SaleLine.ApplyTax">
+                    <label for="applyTax">Tax:</label>
+                    <InputSelect id="applytax" name="applyTax" @bind-Value="SaleLine.ApplyTax">
                         <option value="true">Yes</option>
                         <option value="false">No</option>
                     </InputSelect>
@@ -36,7 +40,7 @@
 
             <tr>
                 <td>
-                    <button type="button" class="btn btn-danger" aria-label="Remove product from order"
+                    <button type="button" class="btn btn-danger" aria-label="@($"Remove {SaleLine.Product.Description} from order")"
                         @onclick="@(() => RemoveProduct(SaleLine.ProductId))">
                         Remove
                     </button>

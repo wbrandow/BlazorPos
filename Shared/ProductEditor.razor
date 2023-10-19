@@ -2,89 +2,89 @@
 @inject HttpClient HttpClient
 
     <div class="form-field">
-        <label>UPC:</label>
+        <label for="upc">UPC:</label>
         <div>
-            <InputText @bind-Value="Product.UPC" />
+            <InputText id="upc" name="upc" @bind-Value="Product.UPC" />
             <ValidationMessage For="@(() => Product.UPC)" />
         </div>
     </div>
 
     <div class="form-field">
-        <label>EAN:</label>
+        <label for="ean">EAN:</label>
         <div>
-            <InputText @bind-Value="Product.EAN" />
+            <InputText id="ean" name="ean" @bind-Value="Product.EAN" />
             <ValidationMessage For="@(() => Product.EAN)" />
         </div>
     </div>
 
     <div class="form-field">
-        <label>SKU:</label>
+        <label for="sku">SKU:</label>
         <div>
-            <InputText @bind-Value="Product.SKU" />
+            <InputText id="sku" name="sku" @bind-Value="Product.SKU" />
             <ValidationMessage For="@(() => Product.SKU)" />
         </div>
     </div>
 
     <div class="form-field">
-        <label>Desciption:</label>
+        <label for="description">Desciption:</label>
         <div>
-            <InputText @bind-Value="Product.Description" />
+            <InputText id="description" name="description" @bind-Value="Product.Description" />
             <ValidationMessage For="@(() => Product.Description)" />
         </div>
     </div>
 
     <div class="form-field">
-        <label>Brand:</label>
+        <label for="brand">Brand:</label>
         <div>
-            <InputText @bind-Value="Product.Brand" />
+            <InputText id="brand" name="brand" @bind-Value="Product.Brand" />
             <ValidationMessage For="@(() => Product.Brand)" />
         </div>
     </div>
 
     <div class="form-field">
-        <label>Vendor:</label>
+        <label for="vendor">Vendor:</label>
         <div>
-            <InputText @bind-Value="Product.Vendor" />
+            <InputText id="vendor" name="vendor" @bind-Value="Product.Vendor" />
             <ValidationMessage For="@(() => Product.Vendor)" />
         </div>
     </div>
 
     <div class="form-field">
-        <label>Price:</label>
+        <label for="price">Price:</label>
         <div>
-            <InputNumber @bind-Value="Product.Price" />
+            <InputNumber id="price" name="price" @bind-Value="Product.Price" />
             <ValidationMessage For="@(() => Product.Price)" />
         </div>
     </div>
 
     <div class="form-field">
-        <label>MSRP:</label>
+        <label for="msrp">MSRP:</label>
         <div>
-            <InputNumber @bind-Value="Product.MSRP" />
+            <InputNumber id="msrp" name="msrp" @bind-Value="Product.MSRP" />
             <ValidationMessage For="@(() => Product.MSRP)" />
         </div>
     </div>
 
     <div class="form-field">
-        <label>Online Price:</label>
+        <label for="onlinePrice">Online Price:</label>
         <div>
-            <InputNumber @bind-Value="Product.OnlinePrice" />
+            <InputNumber id="onlinePrice" name="onlinePrice" @bind-Value="Product.OnlinePrice" />
             <ValidationMessage For="@(() => Product.OnlinePrice)" />
         </div>
     </div>
 
     <div class="form-field">
-        <label>Default Cost:</label>
+        <label for="defaultCost">Default Cost:</label>
         <div>
-            <InputNumber @bind-Value="Product.DefaultCost" />
+            <InputNumber id="defaultCost" name="defaultCost" @bind-Value="Product.DefaultCost" />
             <ValidationMessage For="@(() => Product.DefaultCost)" />
         </div>
     </div>
 
     <div class="form-field">
-        <label>Tax Class:</label>
+        <label for="taxClassSelector">Tax Class:</label>
         <div>
-            <select class="custom-select" id="taxClassSelector" @bind="Product.TaxClassId" aria-label="Select Tax Class">
+            <select class="custom-select" id="taxClassSelector" name="taxClassSelector" @bind="Product.TaxClassId">
                 @foreach (var taxClass in TaxClasses) {
                     <option value="@taxClass.Id">@taxClass.TaxClassName</option>
                 }

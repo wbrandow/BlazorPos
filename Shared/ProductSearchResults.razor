@@ -11,7 +11,7 @@
             </thead>
             <tbody>
                 <Virtualize Items="@Products" Context="product">
-                    <tr aria-label="View product details for @product.Brand - @product.Description"
+                    <tr aria-label="@($"View product details for {product.Brand} - {product.Description}")"
                             role="button" tabindex="0" 
                             @onclick="() => OpenProductDetails(product)" @onkeydown="e => HandleKeyDown(e, product)">
                            <td>@product.Brand</td>
@@ -19,7 +19,7 @@
                             <td>$@product.Price.ToString("0.00")</td>
                             <td>
                                 <div class="select-button">
-                                    <button type="button" class="btn-primary" aria-label="Add @product.Description to cart"
+                                    <button type="button" class="btn-primary" aria-label="@($"Add {product.Description} to cart")"
                                         @onclick="@(() => SelectProduct(product))"
                                         @onclick:preventDefault @onclick:stopPropagation
                                         @onkeydown:stopPropagation>

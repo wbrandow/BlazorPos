@@ -20,6 +20,7 @@ public class ProductController : Controller {
             .Include(p => p.InventoryItems)
             .Include(p => p.TaxClass)
                 .ThenInclude(tc => tc.TaxRates)
+            .AsSplitQuery()
             .ToListAsync();
     }
     
@@ -30,6 +31,7 @@ public class ProductController : Controller {
             .Include(p => p.InventoryItems)
             .Include(p => p.TaxClass)
                 .ThenInclude(tc => tc.TaxRates)
+            .AsSplitQuery()    
             .SingleOrDefaultAsync();
 
         if (product == null) {
@@ -50,6 +52,7 @@ public class ProductController : Controller {
                         .Include(p => p.InventoryItems)
                         .Include(p => p.TaxClass)
                             .ThenInclude(tc => tc.TaxRates)
+                        .AsSplitQuery()
                         .ToListAsync(); 
                 
                 case "Brand":
@@ -58,6 +61,7 @@ public class ProductController : Controller {
                         .Include(p => p.InventoryItems)
                         .Include(p => p.TaxClass)
                             .ThenInclude(tc => tc.TaxRates)
+                        .AsSplitQuery()    
                         .ToListAsync();
                     
                 case "Vendor":
@@ -66,6 +70,7 @@ public class ProductController : Controller {
                         .Include(p => p.InventoryItems)
                         .Include(p => p.TaxClass)
                             .ThenInclude(tc => tc.TaxRates)
+                        .AsSplitQuery()    
                         .ToListAsync();  
 
                 case "UPC":
@@ -74,6 +79,7 @@ public class ProductController : Controller {
                         .Include(p => p.InventoryItems)
                         .Include(p => p.TaxClass)
                             .ThenInclude(tc => tc.TaxRates)
+                        .AsSplitQuery()    
                         .ToListAsync();
 
                 case "EAN":
@@ -82,6 +88,7 @@ public class ProductController : Controller {
                         .Include(p => p.InventoryItems)
                         .Include(p => p.TaxClass)
                             .ThenInclude(tc => tc.TaxRates)
+                        .AsSplitQuery()    
                         .ToListAsync(); 
 
                 case "SKU":
@@ -90,6 +97,7 @@ public class ProductController : Controller {
                         .Include(p => p.InventoryItems)
                         .Include(p => p.TaxClass)
                             .ThenInclude(tc => tc.TaxRates)
+                        .AsSplitQuery()    
                         .ToListAsync();               
 
                 default:
@@ -102,7 +110,8 @@ public class ProductController : Controller {
                             || p.SKU.ToLower().Contains(searchValue))
                         .Include(p => p.InventoryItems) 
                         .Include(p => p.TaxClass)
-                            .ThenInclude(tc => tc.TaxRates)   
+                            .ThenInclude(tc => tc.TaxRates) 
+                        .AsSplitQuery()      
                         .ToListAsync();
             }
         }    
@@ -114,6 +123,7 @@ public class ProductController : Controller {
             .Include(p => p.InventoryItems)
             .Include(p => p.TaxClass)
                 .ThenInclude(tc => tc.TaxRates)
+            .AsSplitQuery()    
             .SingleOrDefaultAsync();
 
         if (existingProduct == null) {

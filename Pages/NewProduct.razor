@@ -1,4 +1,3 @@
-<!--
 @page "/products/new"
 @inject NavigationManager NavigationManager
 @inject HttpClient HttpClient
@@ -51,7 +50,6 @@
         if (QtyToAdd > 0) {
             InventoryItem = new InventoryItem() {
                 ProductId = product.Id,
-                Product = product,
                 QtyOnHand = QtyToAdd,
                 UnitCost = product.DefaultCost,
                 AquisitionDate = DateTime.Now,
@@ -71,4 +69,3 @@
         }
     }
 }
--->
