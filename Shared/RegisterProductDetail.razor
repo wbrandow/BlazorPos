@@ -31,7 +31,7 @@
 
                 <td>
                     <label for="applyTax">Tax:</label>
-                    <InputSelect id="applytax" name="applyTax" @bind-Value="SaleLine.ApplyTax">
+                    <InputSelect id="applytax" name="applyTax" @bind-Value="SaleLine.ApplyTax" aria-label="Select whether item is taxed.">
                         <option value="true">Yes</option>
                         <option value="false">No</option>
                     </InputSelect>

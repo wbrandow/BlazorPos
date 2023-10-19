@@ -27,7 +27,7 @@
                         <option value="SKU">SKU</option>
                     </select>
                     <div class="input-group-append">
-                        <button class="btn btn-secondary" type="button" aria-label="Search"
+                        <button class="btn btn-secondary" type="button" tabindex="0" aria-label="Search"
                             @onclick="@(() => FilterProducts())">
                             Search
                         </button>
@@ -38,7 +38,8 @@
                 @if (Products.Count() > 1) {
                     <div>
                         <ProductSearchResults Products=Products 
-                        OnSelectProduct="OnSelectProductHandler" />
+                        OnSelectProduct="OnSelectProductHandler"
+                        OnOpenProductDetails="OnOpenProductDetailsHandler" />
                     </div>
                 }
 
@@ -86,7 +87,6 @@
     private string? searchField;
     private List<Product> Products = new List<Product>();
     private List<Product> ProductsInOrder = new List<Product>();  
-<!--    private List<TaxClass> taxClasses = new List<TaxClass>();  -->
     private Sale Sale => OrderState.Sale; 
     private SaleLine currentSaleLine;
     private EditContext editContext;
@@ -94,11 +94,7 @@
     bool orderValid = true;
 
     protected override async Task OnInitializedAsync() {
-        ProductsInOrder = Sale.SaleLines.Select(line => line.Product).ToList(); 
-<!--        
-        taxClasses = await HttpClient.GetFromJsonAsync<List<TaxClass>>(
-            $"{NavigationManager.BaseUri}api/settings/taxclasses");
--->            
+        ProductsInOrder = Sale.SaleLines.Select(line => line.Product).ToList();            
     }
 
     async Task FilterProducts() {
@@ -112,15 +108,7 @@
         else{
             Products = await HttpClient.GetFromJsonAsync<List<Product>>(NavigationManager.BaseUri + $"api/products/results?searchField={searchField}&searchValue={searchValue}");
         }
-<!--
-        foreach (var product in Products) {
-            foreach (var taxClass in taxClasses) {
-                if (product.TaxClassId == taxClass.Id) {
-                    product.TaxClass = taxClass;
-                }
-            }
-        } 
--->    
+
         if (Products.Count() == 1) {
             OrderState.SelectProduct(Products.FirstOrDefault());
             ProductsInOrder = Sale.SaleLines.Select(line => line.Product).ToList();
@@ -129,12 +117,21 @@
     }
 
     public void OnOpenProductDetailsHandler(SaleLine saleLine) {
-        currentSaleLine = saleLine;
-        
-        editContext = new(currentSaleLine);
-        editContext.OnFieldChanged += HandleFieldChanged;
+        if (currentSaleLine == saleLine) {
+            currentSaleLine = null;
+        }
+        else {
+            currentSaleLine = saleLine;
+
+            editContext = new(currentSaleLine);
+            editContext.OnFieldChanged += HandleFieldChanged;
+        }
         
         StateHasChanged();
+    }
+
+    public void OnOpenProductDetailsHandler(Product product) {
+        NavigationManager.NavigateTo($"/products/{product.Id}");
     }
 
     public void OnCloseProductDetailHandler() {

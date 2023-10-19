@@ -11,7 +11,7 @@
                     <th scope="col">Line Subtotal</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody tabindex="0">
                 @foreach (var line in SaleLines) {
                     <tr aria-label="@($"View product details for {line.Product.Brand} - {line.Product.Description}")"
                         role="button" tabindex="0" 
