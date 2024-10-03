@@ -1,0 +1,100 @@
+@page "/customers/new"
+@inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
+
+<h3>Add New Customer</h3>
+
+@if (!string.IsNullOrEmpty(successMessage))
+{
+    <div class="alert alert-success">@successMessage</div>
+}
+
+<EditForm Model="@newCustomer" OnValidSubmit="SubmitForm">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label for="firstName">First Name</label>
+        <InputText id="firstName" class="form-control" @bind-Value="newCustomer.FirstName" />
+    </div>
+
+    <div class="mb-3">
+        <label for="lastName">Last Name</label>
+        <InputText id="lastName" class="form-control" @bind-Value="newCustomer.LastName" />
+    </div>
+
+    <div class="mb-3">
+        <label for="birthday">Birthday</label>
+        <InputDate id="birthday" class="form-control" @bind-Value="newCustomer.Birthday" />
+    </div>
+
+    <div class="mb-3">
+        <label for="email">Email</label>
+        <InputText id="email" class="form-control" @bind-Value="newCustomer.Email" />
+    </div>
+
+    <div class="mb-3">
+        <label for="phone">Phone</label>
+        <InputText id="phone" class="form-control" @bind-Value="newCustomer.Phone" />
+    </div>
+
+    <div class="mb-3">
+        <label for="company">Company</label>
+        <InputText id="company" class="form-control" @bind-Value="newCustomer.Company" />
+    </div>
+
+    <div class="mb-3">
+        <label for="addressLine1">Address Line 1</label>
+        <InputText id="addressLine1" class="form-control" @bind-Value="newCustomer.AddressLine1" />
+    </div>
+
+    <div class="mb-3">
+        <label for="addressLine2">Address Line 2</label>
+        <InputText id="addressLine2" class="form-control" @bind-Value="newCustomer.AddressLine2" />
+    </div>
+
+    <div class="mb-3">
+        <label for="city">City</label>
+        <InputText id="city" class="form-control" @bind-Value="newCustomer.City" />
+    </div>
+
+    <div class="mb-3">
+        <label for="state">State</label>
+        <InputText id="state" class="form-control" @bind-Value="newCustomer.State" />
+    </div>
+
+    <div class="mb-3">
+        <label for="zipCode">Zip Code</label>
+        <InputText id="zipCode" class="form-control" @bind-Value="newCustomer.ZipCode" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+    <button type="button" class="btn btn-secondary" @onclick="ClearForm">Clear</button>
+</EditForm>
+
+@code {
+    private Customer newCustomer = new Customer();
+    private string successMessage = "";
+
+    async Task SubmitForm() {
+
+        // Convert the bound birthday to UTC before saving
+        newCustomer.Birthday = newCustomer.Birthday.ToUniversalTime();
+        
+        try {
+            var response = await HttpClient.PostAsJsonAsync(NavigationManager.BaseUri + "api/customers", newCustomer);
+            var newCustomerId = await response.Content.ReadFromJsonAsync<int>();
+            NavigationManager.NavigateTo("/"); 
+        }
+        catch (Exception ex) {
+            Console.Error.WriteLine(ex);
+        }
+        
+        successMessage = "Customer successfully added!";
+    }
+
+    private void ClearForm() {
+        newCustomer = new Customer();
+        successMessage = "";
+    }
+}

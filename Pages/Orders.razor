@@ -81,6 +81,10 @@
             $"{NavigationManager.BaseUri}api/settings/taxclasses");
 
         foreach (var sale in sales) {
+            if (sale.CustomerId != null) {
+                sale.Customer = await HttpClient.GetFromJsonAsync<Customer>($"{NavigationManager.BaseUri}api/customers/{sale.CustomerId}");
+            }
+            
             foreach (var line in sale.SaleLines) {
                 foreach (var taxClass in taxClasses) {
                     if (line.Product.TaxClassId == taxClass.Id)

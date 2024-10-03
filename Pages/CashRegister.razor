@@ -14,6 +14,7 @@
 <div class="main">
     <div class="row">
         <div class="col-sm-8">
+            <h3>Products</h3>
             <div class="register-search">
                 <div class="input-group">
                     <input @bind="searchValue" aria-label="Input search value" />
@@ -68,7 +69,92 @@
         </div>
         <div class="col-sm-4">
             <div class="register-cart-customer">
-                <p>customer info here</p>
+                <h3>Customer</h3>
+                @if (Customers.Count() == 0) {
+                    <!-- This should be moved to shared CustomerSearch.razor file -->
+                    <div class="customer-search">
+                        <div class="input-group">
+                            <input @bind="customerSearchValue" aria-label="Input search value" />
+                            <select class="custom-select" id="inputGroupSelect04" @bind="customerSearchField" aria-label="Select field to search">
+                                <option selected>Any</option>
+                                <option value="Phone">Phone</option>
+                                <option value="Email">Email</option>
+                                <option value="LastName">Last Name</option>
+                                <option value="Company">Company</option>
+                            </select>
+                            <div class="input-group-append">
+                                <button class="btn btn-secondary" type="button" tabindex="0" aria-label="Search"
+                                    @onclick="@(() => FindCustomers())">
+                                    Search
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div>
+                @if (Customers.Count() > 1) {
+                    <table class="table table-hover customers-table">
+                        <thead>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Phone</th>
+                            <th>Company</th>
+                            <th></th>
+                        </thead>
+                        <tbody>
+                        @foreach (var customer in Customers) {
+                            <tr class="customer-info" role="button" tabindex="0">
+                                <td>@customer.FirstName</td>
+                                <td>@customer.LastName</td>
+                                <td>@customer.Phone</td>
+                                <td>@customer.Company</td>
+                                <td>
+                                    <div class="select-button">
+                                        <button type="button" class="btn-primary" aria-label="@($"Add {customer.FirstName} to sale")"
+                                            @onclick="@(() => SelectCustomer(customer))"
+                                            @onclick:preventDefault @onclick:stopPropagation
+                                            @onkeydown:stopPropagation>
+                                            Select
+                                        </button>
+                                    </div>
+                                </td> 
+                            </tr>   
+                        }
+                        </tbody>
+                    </table>
+                }
+                else if (Customers.Count() == 1) {
+                    <table class="table table-hover customers-table">
+                        <thead>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Phone</th>
+                            <th>Company</th>
+                            <th></th>
+                        </thead>
+                        <tbody>
+                        @foreach (var customer in Customers) {
+                            <tr class="customer-info" role="button" tabindex="0">
+                                <td>@customer.FirstName</td>
+                                <td>@customer.LastName</td>
+                                <td>@customer.Phone</td>
+                                <td>@customer.Company</td>
+                                <td>
+                                    <div class="select-button">
+                                        <button type="button" class="btn-primary" aria-label="@($"Remove {customer.FirstName} from sale")"
+                                            @onclick="@(() => RemoveCustomer())"
+                                            @onclick:preventDefault @onclick:stopPropagation
+                                            @onkeydown:stopPropagation>
+                                            Remove
+                                        </button>
+                                    </div>
+                                </td> 
+                            </tr>   
+                        }
+                        </tbody>
+                    </table>
+                }
             </div>
             <div class="register-cart-order-totals">
                 <RegisterOrderTotals Sale=Sale />
@@ -85,16 +171,25 @@
 @code {
     private string? searchValue; 
     private string? searchField;
+    private string? customerSearchValue; 
+    private string? customerSearchField;
     private List<Product> Products = new List<Product>();
     private List<Product> ProductsInOrder = new List<Product>();  
+    private List<Customer> Customers = new List<Customer>();
     private Sale Sale => OrderState.Sale; 
     private SaleLine currentSaleLine;
     private EditContext editContext;
     bool isError = false; 
     bool orderValid = true;
 
+    protected override void OnInitialized() {
+        if (Sale.Customer != null) {
+            Customers.Add(Sale.Customer);
+            StateHasChanged();
+        }
+    }
     protected override async Task OnInitializedAsync() {
-        ProductsInOrder = Sale.SaleLines.Select(line => line.Product).ToList();            
+        ProductsInOrder = Sale.SaleLines.Select(line => line.Product).ToList();           
     }
 
     async Task FilterProducts() {
@@ -112,6 +207,24 @@
         if (Products.Count() == 1) {
             OrderState.SelectProduct(Products.FirstOrDefault());
             ProductsInOrder = Sale.SaleLines.Select(line => line.Product).ToList();
+            StateHasChanged();
+        }
+    }
+
+    async Task FindCustomers() {
+        if (string.IsNullOrWhiteSpace(searchField)) {
+            customerSearchField = "Any";
+        }
+
+        if (string.IsNullOrWhiteSpace(customerSearchValue)) {
+            Customers = await HttpClient.GetFromJsonAsync<List<Customer>>(NavigationManager.BaseUri + "api/customers");
+        }
+        else{
+            Customers = await HttpClient.GetFromJsonAsync<List<Customer>>(NavigationManager.BaseUri + $"api/customers/results?searchField={customerSearchField}&searchValue={customerSearchValue}");
+        }
+
+        if (Customers.Count() == 1) {
+            OrderState.SelectCustomer(Customers.FirstOrDefault());
             StateHasChanged();
         }
     }
@@ -152,6 +265,19 @@
         ProductsInOrder = Sale.SaleLines.Select(line => line.Product).ToList();
         currentSaleLine = null;
         Console.WriteLine("Called Remove");
+        StateHasChanged();
+    }
+
+    public void SelectCustomer(Customer customer) {
+        OrderState.SelectCustomer(customer);
+        Customers.Clear();
+        Customers.Add(customer);
+        StateHasChanged();
+    }
+
+    public void RemoveCustomer() {
+        OrderState.RemoveCustomer();
+        Customers.Clear();
         StateHasChanged();
     }
 

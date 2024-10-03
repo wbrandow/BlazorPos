@@ -84,30 +84,71 @@
         foreach (var line in Sale.SaleLines){
             int qty = line.Units;
             decimal lineCost = 0;
-            while (qty > 0) {
-                for (int i = 0; i < line.Product.InventoryItems.Count(); i++) {
-                    Console.WriteLine("QUANTITY ON HAND BEFORE: " + line.Product.InventoryItems[i].QtyOnHand);
-                    if (qty >= line.Product.InventoryItems[i].QtyOnHand) {
-                        qty -= line.Product.InventoryItems[i].QtyOnHand;
+            if (qty >= 0) {
+                while (qty > 0) {
+                    for (int i = 0; i < line.Product.InventoryItems.Count(); i++) {
                         
-                        lineCost += (line.Product.InventoryItems[i].UnitCost * line.Product.InventoryItems[i].QtyOnHand);
-                        line.Product.InventoryItems.Remove(line.Product.InventoryItems[i]);
-                    }
-                    else if (qty < line.Product.InventoryItems[i].QtyOnHand) {
-                        line.Product.InventoryItems[i].QtyOnHand -= qty;
+                        if (qty >= line.Product.InventoryItems[i].QtyOnHand) {
+                            qty -= line.Product.InventoryItems[i].QtyOnHand;
+                            
+                            lineCost += (line.Product.InventoryItems[i].UnitCost * line.Product.InventoryItems[i].QtyOnHand);
+                            line.Product.InventoryItems.Remove(line.Product.InventoryItems[i]);
+                        }
+                        else if (qty < line.Product.InventoryItems[i].QtyOnHand) {
+                            line.Product.InventoryItems[i].QtyOnHand -= qty;
 
-                        lineCost += (qty * line.Product.InventoryItems[i].UnitCost);
-                        qty = 0;
-                    }
-                    if (qty == 0) {
-                        break;
+                            lineCost += (qty * line.Product.InventoryItems[i].UnitCost);
+                            qty = 0;
+                        }
+                        if (qty == 0) {
+                            break;
+                        }
                     }
                 }
+                line.UnitCost = lineCost / line.Units;
             }
-            line.UnitCost = lineCost / line.Units;
+            // trying to figure out how to return an item
+            else {
+                InventoryItem returnedItem = new InventoryItem();
+
+                returnedItem.ProductId = line.ProductId;
+                returnedItem.QtyOnHand = Math.Abs(qty);
+                returnedItem.AquisitionDate = DateTime.UtcNow;
+                returnedItem.AddedBy = username;
+                
+                if (line.UnitCost > 0.00m) {
+                    returnedItem.UnitCost = line.UnitCost;
+                }
+                else {
+                    returnedItem.UnitCost = line.Product.DefaultCost;
+                }
+
+                line.Product.InventoryItems.Add(returnedItem);
+                
+                qty = 0;
+            }
         }
 
-        var response = await HttpClient.PostAsJsonAsync(NavigationManager.BaseUri + "api/orders", Sale);
+        Sale.Completed = true;
+
+        try {
+            var saleResponse = await HttpClient.PostAsJsonAsync(NavigationManager.BaseUri + "api/orders", Sale);
+            if (!saleResponse.IsSuccessStatusCode) {
+                throw new Exception($"Failed to save sale. StatusCode: {saleResponse.StatusCode}");
+            }
+
+         //   var customerResponse = await HttpClient.PostAsJsonAsync($"{NavigationManager.BaseUri}api/customers/{Sale.CustomerId}", Sale);
+         //   if (!customerResponse.IsSuccessStatusCode) {
+         //       throw new Exception($"Failed to save customer. StatusCode: {customerResponse.StatusCode}");
+         //   }
+        }
+        catch (Exception ex) {
+            Console.Error.WriteLine($"Error placing order: {ex.Message}");
+
+            Sale.Completed = false;
+
+            return;
+        }
 
         OrderState.ResetOrder();
         NavigationManager.NavigateTo($"/orders");    

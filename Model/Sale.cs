@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace BlazorPos {
     /*
@@ -15,6 +16,7 @@ namespace BlazorPos {
 
         public int? CustomerId { get; set; }
 
+        [JsonIgnore]
         public Customer? Customer { get; set; }
 
         public List<SaleLine> SaleLines { get; set; } = new List<SaleLine>();

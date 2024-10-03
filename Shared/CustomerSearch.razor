@@ -1,0 +1,63 @@
+@inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
+
+<div>
+    <div class="input-group">
+        <input @bind="customerSearchValue" aria-label="Input search value" />
+            <select class="custom-select" id="inputGroupSelect04" @bind="customerSearchField" aria-label="Select field to search">
+                <option selected>Any</option>
+                <option value="Phone">Phone</option>
+                <option value="Email">Email</option>
+                <option value="LastName">Last Name</option>
+                <option value="Company">Company</option>
+            </select>
+        <div class="input-group-append">
+            <button class="btn btn-secondary" type="button" tabindex="0" aria-label="Search"
+                @onclick="SearchCustomers">
+                Search
+            </button>
+        </div>
+    </div>
+
+    @if (customers != null && customers.Count > 0)
+    {
+        <ul>
+            @foreach (var customer in customers)
+            {
+                <li>
+                    <span>@customer.FirstName @customer.LastName</span>
+                    <button @onclick="(() => SelectCustomer(customer))">Select</button>
+                </li>
+            }
+        </ul>
+    }
+</div>
+
+@code {
+    [Parameter] public EventCallback<Customer> OnCustomerSelected { get; set; }
+    private List<Customer> customers;
+    private string customerSearchValue = "";
+    private string customerSearchField;
+
+    protected override async Task OnInitializedAsync() {
+        customers = await HttpClient.GetFromJsonAsync<List<Customer>>(NavigationManager.BaseUri + "api/customers");
+    }
+
+    private async Task SearchCustomers() {
+        if (string.IsNullOrWhiteSpace(customerSearchField)) {
+            customerSearchField = "Any";
+        }
+
+        if (string.IsNullOrWhiteSpace(customerSearchValue)) {
+            customers = await HttpClient.GetFromJsonAsync<List<Customer>>(NavigationManager.BaseUri + "api/customers");
+        }
+        else {
+            customers = await HttpClient.GetFromJsonAsync<List<Customer>>(NavigationManager.BaseUri + $"api/customers/results?searchField={customerSearchField}&searchValue={customerSearchValue}");
+        }
+    }
+
+    private async Task SelectCustomer(Customer customer) {
+        await OnCustomerSelected.InvokeAsync(customer);
+    }
+}
+

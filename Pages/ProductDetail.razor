@@ -54,6 +54,7 @@
                             <th scope="col">Entered Inventory</th>
                             <th scope="col">Entered By</th>
                             <th scope="col">PO Number</th>
+                            <th scope="col">Unit Cost</th>
                         </thead>
                         @foreach (var item in product.InventoryItems) {
                             <tbody>
@@ -67,11 +68,13 @@
                                     else {
                                         <td>@item.PurchaseOrderId</td>
                                     }
+                                    <td>@item.UnitCost.ToString("0.00")</td>
                                 </tr>
                             </tbody>
                         }
                     </table>
                     <h5>Total On Hand: @product.GetQuantityOnHand()</h5>
+                    <h5>Total Cost: @product.GetInventoryCost()</h5>
                 }
             </div>
             <div>
@@ -180,7 +183,7 @@
                 ProductId = product.Id,
                 QtyOnHand = QtyToAdd,
                 UnitCost = product.DefaultCost,
-                AquisitionDate = DateTime.Now,
+                AquisitionDate = DateTime.UtcNow,
                 AddedBy = username
             };
 

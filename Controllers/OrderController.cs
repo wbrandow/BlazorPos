@@ -18,6 +18,7 @@ public class OrderController : Controller {
         var sales = await _db.Sales
             .Include(s => s.SaleLines)
                 .ThenInclude(line => line.Product)
+            .Include(s => s.Customer)
             .AsSplitQuery()    
             .ToListAsync();
 
@@ -31,6 +32,7 @@ public class OrderController : Controller {
             .OrderByDescending(s => s.TimeOfSale)
             .Include(s => s.SaleLines)
                 .ThenInclude(line => line.Product)
+            .Include(s => s.Customer)
             .AsSplitQuery()    
             .ToListAsync();
 
@@ -45,6 +47,7 @@ public class OrderController : Controller {
                 .ThenInclude(line => line.Product)
                     .ThenInclude(p => p.TaxClass)
                         .ThenInclude(tc => tc.TaxRates)
+            .Include(s => s.Customer)            
             .AsSplitQuery()            
             .FirstOrDefaultAsync();
 
@@ -56,6 +59,7 @@ public class OrderController : Controller {
         var sales = await _db.Sales
             .Where(s => s.SaleLines.Any(line => line.ProductId == productId))
             .Include(s => s.SaleLines)
+            .Include(s => s.Customer)
             .AsSplitQuery()
             .ToListAsync();
 
@@ -65,8 +69,11 @@ public class OrderController : Controller {
     [HttpPost]
     public async Task<ActionResult<int>> CreateOrder(Sale Sale) {
         Sale newSale = new Sale();
-        newSale.TimeOfSale = DateTime.Now;
+        newSale.TimeOfSale = DateTime.UtcNow;
         newSale.Salesperson = Sale.Salesperson;
+        newSale.CustomerId = Sale.CustomerId;
+        newSale.Customer = Sale.Customer;
+        newSale.Completed = Sale.Completed;
 
         var productIds = Sale.SaleLines.Select(line => line.ProductId).ToList();
 
@@ -80,7 +87,13 @@ public class OrderController : Controller {
 
             var product = products.FirstOrDefault(p => p.Id == line.ProductId);
             
-            product.InventoryItems = line.Product.InventoryItems;
+            
+            foreach (var item in line.Product.InventoryItems) {
+                if (!product.InventoryItems.Any(i => i.Id == item.Id)) {
+                    product.InventoryItems.Add(item);
+                }
+            }
+
 
             var newLine = new SaleLine() {
                 SaleId = line.SaleId,

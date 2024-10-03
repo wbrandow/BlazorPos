@@ -56,5 +56,15 @@ namespace BlazorPos {
 
             return qtyOnHand;
         }
+
+        public decimal GetInventoryCost() {
+            decimal cost = 0;
+
+            foreach (var inventoryItem in InventoryItems) {
+                cost += inventoryItem.UnitCost * inventoryItem.QtyOnHand;
+            }
+
+            return cost;
+        }
     } 
 }

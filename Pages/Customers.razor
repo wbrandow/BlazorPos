@@ -1,0 +1,136 @@
+@page "/customers"
+@attribute [Authorize]
+
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider authStateProvider
+
+<div class="main">
+    <div class="row">
+        <div class="col-sm-8">
+            <!-- This should be moved to shared CustomerSearch.razor file -->
+            <div class="customer-search">
+                <div class="input-group">
+                    <input @bind="searchValue" aria-label="Input search value" />
+                    <select class="custom-select" id="inputGroupSelect04" @bind="searchField" aria-label="Select field to search">
+                        <option selected>Any</option>
+                        <option value="Phone">Phone</option>
+                        <option value="Email">Email</option>
+                        <option value="LastName">Last Name</option>
+                        <option value="Company">Company</option>
+                    </select>
+                    <div class="input-group-append">
+                        <button class="btn btn-secondary" type="button" tabindex="0" aria-label="Search"
+                            @onclick="@(() => FilterCustomers())">
+                            Search
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    
+    <div class="add-customer">
+        <button type="button" class="btn btn-primary" aria-label="Create new customer"
+            @onclick="@(() => AddNewCustomer())">
+            New Customer
+        </button>
+    </div>   
+    <div class="your-customers">
+        <h2>Your Customers</h2>
+        <div class="table-responsive">
+            <table class="table table-hover customers-table">
+                <thead>
+                    <th>ID</th>
+                    <th>First Name</th>
+                    @if (lastNameDesc == true) {
+                        <th aria-label="Sort by Last Name in ascending order" role="button" tabindex="0" 
+                            @onclick="() => LastNameSort()" @onkeydown="e => HandleKeyDown(e)">
+                            Last Name <span class="oi oi-chevron-bottom"></span>
+                        </th>
+                    }
+                    else {
+                        <th aria-label="Sort by Last Name in descending order" role="button" tabindex="0" 
+                            @onclick="() => LastNameSort()" @onkeydown="e => HandleKeyDown(e)">
+                            Last Name <span class="oi oi-chevron-top"></span>
+                        </th>
+                    }
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Company</th>
+                    <th>Birthday</th>
+                </thead>
+                <tbody>
+                @foreach (var customer in customers) {
+                    <tr class="customer-info" role="button" tabindex="0" aria-label="Click to open customer details"
+                        @onclick="() => OpenCustomerDetails(customer.Id)" @onkeydown="e => HandleKeyDown(e, customer.Id)">
+                        <td>@customer.Id</td>
+                        <td>@customer.FirstName</td>
+                        <td>@customer.LastName</td>
+                        <td>@customer.Email</td>
+                        <td>@customer.Phone</td>
+                        <td>@customer.Company</td>
+                        <td>@customer.Birthday.ToString("MM/dd/yyyy")</td>
+                    </tr>   
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string? searchValue; 
+    private string? searchField;
+    List<Customer> customers = new List<Customer>();
+    private bool lastNameDesc = true;    
+
+    protected override async Task OnInitializedAsync() {
+        customers = await HttpClient.GetFromJsonAsync<List<Customer>>(
+            $"{NavigationManager.BaseUri}api/customers/");
+    }
+
+    private void LastNameSort() {
+        lastNameDesc = !lastNameDesc;
+
+        if (lastNameDesc) {
+            customers = customers.OrderByDescending(c => c.LastName).ToList();
+        } else {
+            customers = customers.OrderBy(c => c.LastName).ToList();
+        }
+
+        StateHasChanged();
+    }
+
+    private void AddNewCustomer() {
+        NavigationManager.NavigateTo($"customers/new");
+    }
+
+    private void OpenCustomerDetails(int customerId) {
+        NavigationManager.NavigateTo($"/customers/{customerId}");
+    }
+
+    private void HandleKeyDown(KeyboardEventArgs e) {
+        if (e.Key == "Enter" || e.Key == " ") {
+            LastNameSort();
+        }
+    }
+
+    private void HandleKeyDown(KeyboardEventArgs e, int customerId) {
+        if (e.Key == "Enter" || e.Key == " ") {
+            OpenCustomerDetails(customerId);
+        }
+    }
+
+    async Task FilterCustomers() {
+        if (string.IsNullOrWhiteSpace(searchField)) {
+            searchField = "Any";
+        }
+
+        if (string.IsNullOrWhiteSpace(searchValue)) {
+            customers = await HttpClient.GetFromJsonAsync<List<Customer>>(NavigationManager.BaseUri + "api/customers");
+        }
+        else{
+            customers = await HttpClient.GetFromJsonAsync<List<Customer>>(NavigationManager.BaseUri + $"api/customers/results?searchField={searchField}&searchValue={searchValue}");
+        }
+    }
+}

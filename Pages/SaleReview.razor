@@ -4,6 +4,9 @@
 @using Blazored.Toast.Services
 @inject IToastService toastService
 
+@using BlazorPos.Services
+@inject OrderState OrderState
+
 <div class="main">
     @if (invalidSale) {
         <h2>Product not found</h2>
@@ -48,19 +51,46 @@
                         <td>$@Sale.GetProfit().ToString("0.00")</td>
                         @if (Sale.Customer != null) {
                             <td>
-                                @Sale.Customer.FirstName @Sale.Customer.LastName
+                                <p>@Sale.Customer.FirstName @Sale.Customer.LastName</p>
+                                <button type="button" class="oi oi-x btn-danger" aria-label="Remove Customer"
+                                    @onclick="@(() => RemoveCustomer())"
+                                    @onclick:preventDefault @onclick:stopPropagation
+                                    @onkeydown:stopPropagation>
+                                </button>
                             </td>
                         }
                         else {
                             <td>
-                                No Customer
+                                <p>No Customer</p>
+                                <button type="button" class="oi oi-plus btn-danger" aria-label="Add Customer"
+                                    @onclick="@(() => OpenCustomerSearch())"
+                                    @onclick:preventDefault @onclick:stopPropagation
+                                    @onkeydown:stopPropagation>
+                                </button>
                             </td>
                         }
                         <td>@Sale.TimeOfSale</td>
+                        <td>
+                            <button type="button" class="btn-primary" aria-label="Return Product"
+                                @onclick="@(() => OpenReturn(Sale))">
+                                Return
+                            </button>
+                        </td>
                     </tr>
                 </tbody>
             </table>
         </div>
+
+        @if (isCustomerSearchOpen) {
+            <div class="modal-backdrop">
+                <div class="modal">
+                    <h3>Select a Customer</h3>
+                    <CustomerSearch OnCustomerSelected="OnCustomerSelected" />
+                    <button @onclick="CloseCustomerSearch">Cancel</button>
+                </div>
+            </div>
+        }
+
         <div>
             <label>
                 <h3>Sale Lines</h3>
@@ -92,12 +122,6 @@
                             <td>$@line.GetLineCost().ToString("0.00")</td>
                             <td>$@line.GetAvgUnitProfit().ToString("0.00")</td>
                             <td>$@line.GetLineProfit().ToString("0.00")</td>
-                            <td>
-                                <button type="button" class="btn-primary" aria-label="Return Product"
-                                    @onclick="@(() => OpenReturn())">
-                                    Return
-                                </button>
-                            </td>
                         </tr>
                     }
                 </tbody>
@@ -113,11 +137,16 @@
     public Sale Sale;
     public bool invalidSale = false;
 
+    private bool isCustomerSearchOpen = false;
 
     protected override async Task OnParametersSetAsync() {
         try {
             Sale = await HttpClient.GetFromJsonAsync<Sale>(
                 $"{NavigationManager.BaseUri}api/orders/sale/{SaleId}");
+
+            if (Sale.CustomerId != null) {
+                Sale.Customer = await HttpClient.GetFromJsonAsync<Customer>($"{NavigationManager.BaseUri}api/customers/{Sale.CustomerId}");
+            }
         }
         catch (Exception ex) {
             invalidSale = true;
@@ -125,7 +154,48 @@
         }
     }
 
-    public void OpenReturn() {
-        toastService.ShowError("Return Button functionality not implemented yet!");
+    protected async Task RemoveCustomer() {
+        var customerResponse = await HttpClient.PutAsJsonAsync($"{NavigationManager.BaseUri}api/customers/removeSale", Sale);
+
+        if (customerResponse.IsSuccessStatusCode) {
+            // Set Sale.Customer to null or update it appropriately
+            Sale.Customer = null;
+            Sale.CustomerId = null;
+
+            // Trigger re-rendering
+            StateHasChanged();
+        }
+    }
+
+    protected async Task OpenCustomerSearch() {
+        isCustomerSearchOpen = true;
+
+        StateHasChanged();
+    }
+
+    protected void CloseCustomerSearch() {
+        isCustomerSearchOpen = false;
+    }
+
+    // Called when a customer is selected
+    protected async Task OnCustomerSelected(Customer selectedCustomer) {
+        // Assign the selected customer to the sale
+        Sale.Customer = selectedCustomer;
+        Sale.CustomerId = selectedCustomer.Id;
+
+        // Optionally, save the sale with the new customer
+        var customerResponse = await HttpClient.PutAsJsonAsync($"{NavigationManager.BaseUri}api/customers/addSale", Sale);
+
+        if (customerResponse.IsSuccessStatusCode) {
+            // Close the modal and refresh the UI
+            CloseCustomerSearch();
+            StateHasChanged();
+        }
+    }
+
+    public void OpenReturn(Sale returnSale) {
+        OrderState.ReturnSale(returnSale);
+
+        NavigationManager.NavigateTo("/cashregister");
     }
 }

@@ -52,7 +52,7 @@
                 ProductId = product.Id,
                 QtyOnHand = QtyToAdd,
                 UnitCost = product.DefaultCost,
-                AquisitionDate = DateTime.Now,
+                AquisitionDate = DateTime.UtcNow,
                 AddedBy = username
             };
 

@@ -1,0 +1,180 @@
+@page "/customers/{CustomerId:int}"
+
+@inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
+@implements IDisposable
+
+<div class="main">
+    <div class="row">
+        <div class="col-sm-6">
+            <div>
+                @if (invalidCustomer) {
+                    <h2>Customer not found</h2>
+                    <p>This customer does not seem to exist.</p>
+                }
+                else if (customer == null) {
+                    <h2>
+                        <text>Loading...</text>
+                    </h2>
+                }
+                else {
+                    <h2>Customer Details</h2>
+                    <EditForm EditContext=editContext OnValidSubmit=UpdateCustomer>
+                        <CustomerEditor Customer=customer />
+
+                        <div class="edit-customer-buttons">
+                            <button class="update-button btn btn-primary" type="Submit" disabled=@isError>
+                                Update
+                            </button>
+                            <button type="button" class="delete-button btn btn-danger" @onclick="@(async () => await DeleteCustomer())">
+                                Delete
+                            </button>
+                        </div>
+                        <DataAnnotationsValidator />
+                    </EditForm>
+                }
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <h2>Customer Sales</h2>
+            @if (invalidCustomer) {
+                <h3>No Sales Found</h3>
+            }
+            else if (customer == null) {
+                <h2>
+                    <text>Loading...</text>
+                </h2>
+            }
+            else {
+                @if (customer.Sales != null && customer.Sales.Count() > 0) {
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Sale ID</th>
+                                <th>Salesperson</th>
+                                <th>Units Sold</th>
+                                <th>Subtotal</th>
+                                <th>Discount</th>
+                                <th>Discounted Subtotal</th>
+                                <th>Tax</th>
+                                <th>Total Price</th>
+                                @if (createdTimeDesc == true) {
+                                <th aria-label="Sort by Created Time in ascending order" role="button" tabindex="0" 
+                                    @onclick="() => CreatedTimeSort()" @onkeydown="e => HandleKeyDown(e)">
+                                    Created Time <span class="oi oi-chevron-bottom"></span>
+                                </th>
+                            }
+                            else {
+                                <th aria-label="Sort by Created Time in descending order" role="button" tabindex="0" 
+                                    @onclick="() => CreatedTimeSort()" @onkeydown="e => HandleKeyDown(e)">
+                                    Created Time <span class="oi oi-chevron-top"></span>
+                                </th>
+                            }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var sale in customer.Sales) {
+                                <tr>
+                                    <td>@sale.Id</td>
+                                    <td>@sale.Salesperson</td>
+                                    <td>@sale.GetUnitsSold()</td>
+                                    <td>$@sale.GetSubtotal().ToString("0.00")</td>
+                                    <td>$@sale.GetTotalDiscount().ToString("0.00")</td>
+                                    <td>$@sale.GetDiscountedSubtotal().ToString("0.00")</td>
+                                    <td>$@sale.GetTotalTax().ToString("0.00")</td>
+                                    <td>$@sale.GetTotal().ToString("0.00")</td>
+                                    <td>@sale.TimeOfSale</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else {
+                    <p>No sales found.</p>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int CustomerId { get; set; }
+
+    Customer customer;
+
+    bool invalidCustomer = false;
+
+    private EditContext editContext;
+    bool isError = false;
+
+    private bool createdTimeDesc = true;
+
+    protected override async Task OnParametersSetAsync() {
+        try {
+            customer = await HttpClient.GetFromJsonAsync<Customer>(
+                $"{NavigationManager.BaseUri}api/customers/{CustomerId}");
+
+            editContext = new(customer);
+            editContext.OnFieldChanged += HandleFieldChanged;    
+        }
+        catch (Exception ex) {
+            invalidCustomer = true;
+            Console.Error.WriteLine(ex);
+        }
+    }  
+
+    async Task UpdateCustomer() {
+        try {
+            var response = await HttpClient.PutAsJsonAsync(
+                $"{NavigationManager.BaseUri}api/customers/{CustomerId}", customer);
+
+            NavigationManager.NavigateTo("/customers");
+        }
+        catch (Exception ex) {
+            Console.Error.WriteLine(ex);
+        }
+    } 
+
+    async Task DeleteCustomer() {
+        try {
+            var response = await HttpClient.DeleteAsync(
+                $"{NavigationManager.BaseUri}api/customers/{CustomerId}");
+
+            NavigationManager.NavigateTo("/customers");
+        }
+        catch (Exception ex) {
+            Console.Error.WriteLine(ex);
+        }
+    }
+
+    private void CreatedTimeSort() {
+        createdTimeDesc = !createdTimeDesc;
+
+        if (createdTimeDesc) {
+            customer.Sales = customer.Sales.OrderByDescending(s => s.TimeOfSale).ToList();
+        } else {
+            customer.Sales = customer.Sales.OrderBy(s => s.TimeOfSale).ToList();
+        }
+
+        StateHasChanged();
+    }     
+
+    private void HandleFieldChanged(object sender, FieldChangedEventArgs e) {
+        isError = !editContext.Validate();
+        StateHasChanged();
+    }
+
+    private void HandleKeyDown(KeyboardEventArgs e) {
+        if (e.Key == "Enter" || e.Key == " ") {
+            // Trigger the action when Enter or Space is pressed
+            CreatedTimeSort();
+        }
+    }
+
+    public void Dispose() {
+        if (editContext != null) {
+            editContext.OnFieldChanged -= HandleFieldChanged;
+        }
+    }
+}

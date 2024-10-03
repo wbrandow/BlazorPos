@@ -1,0 +1,61 @@
+@inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
+
+    <div class="mb-3">
+        <label for="firstName">First Name</label>
+        <InputText id="firstName" class="form-control" @bind-Value="Customer.FirstName" />
+    </div>
+
+    <div class="mb-3">
+        <label for="lastName">Last Name</label>
+        <InputText id="lastName" class="form-control" @bind-Value="Customer.LastName" />
+    </div>
+
+    <div class="mb-3">
+        <label for="birthday">Birthday</label>
+        <InputDate id="birthday" class="form-control" @bind-Value="Customer.Birthday" />
+    </div>
+
+    <div class="mb-3">
+        <label for="email">Email</label>
+        <InputText id="email" class="form-control" @bind-Value="Customer.Email" />
+    </div>
+
+    <div class="mb-3">
+        <label for="phone">Phone</label>
+        <InputText id="phone" class="form-control" @bind-Value="Customer.Phone" />
+    </div>
+
+    <div class="mb-3">
+        <label for="company">Company</label>
+        <InputText id="company" class="form-control" @bind-Value="Customer.Company" />
+    </div>
+
+    <div class="mb-3">
+        <label for="addressLine1">Address Line 1</label>
+        <InputText id="addressLine1" class="form-control" @bind-Value="Customer.AddressLine1" />
+    </div>
+
+    <div class="mb-3">
+        <label for="addressLine2">Address Line 2</label>
+        <InputText id="addressLine2" class="form-control" @bind-Value="Customer.AddressLine2" />
+    </div>
+
+    <div class="mb-3">
+        <label for="city">City</label>
+        <InputText id="city" class="form-control" @bind-Value="Customer.City" />
+    </div>
+
+    <div class="mb-3">
+        <label for="state">State</label>
+        <InputText id="state" class="form-control" @bind-Value="Customer.State" />
+    </div>
+
+    <div class="mb-3">
+        <label for="zipCode">Zip Code</label>
+        <InputText id="zipCode" class="form-control" @bind-Value="Customer.ZipCode" />
+    </div>
+
+@code {
+    [Parameter] public Customer Customer { get; set; }
+}
